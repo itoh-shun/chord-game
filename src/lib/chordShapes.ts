@@ -18,20 +18,37 @@ type Position = {
 type DbChord = { suffix: string; positions: Position[] };
 const chords = (guitar as { chords: Record<string, DbChord[]> }).chords;
 
-// 表示用ルート(シャープ) -> chords-db のキー
+// 表示用ルート(シャープ) -> chords-db のキー(オブジェクトキー名)
 const ROOT_TO_KEY: Record<string, string> = {
   C: "C",
-  "C#": "C#",
+  "C#": "Csharp",
   D: "D",
   "D#": "Eb",
   E: "E",
   F: "F",
-  "F#": "F#",
+  "F#": "Fsharp",
   G: "G",
   "G#": "Ab",
   A: "A",
   "A#": "Bb",
   B: "B",
+};
+
+// サフィックスが無い場合の代替候補(順に探す)
+const SUFFIX_FALLBACK: Record<string, string[]> = {
+  major: [],
+  minor: [],
+  dim: ["minor"],
+  dim7: ["dim", "minor"],
+  aug: ["major"],
+  sus4: ["major"],
+  sus2: ["sus4", "major"],
+  "7": ["major"],
+  maj7: ["major"],
+  m7: ["minor"],
+  m7b5: ["dim", "minor"],
+  "6": ["major"],
+  add9: ["major"],
 };
 
 // コード名サフィックス -> chords-db のサフィックス
@@ -66,9 +83,17 @@ export function getChordShape(chordName: string): ChordShape | null {
   if (!key || !chords[key]) return null;
 
   const dbSuffix = SUFFIX_TO_DB[suffixRaw] ?? "major";
-  const found =
-    chords[key].find((c) => c.suffix === dbSuffix) ??
-    chords[key].find((c) => c.suffix === (suffixRaw.startsWith("m") ? "minor" : "major"));
+  // 完全一致 -> 代替候補 -> major/minor の順に探す
+  const candidates = [
+    dbSuffix,
+    ...(SUFFIX_FALLBACK[dbSuffix] ?? []),
+    suffixRaw.startsWith("m") ? "minor" : "major",
+  ];
+  let found: DbChord | undefined;
+  for (const s of candidates) {
+    found = chords[key].find((c) => c.suffix === s && c.positions?.length);
+    if (found) break;
+  }
   if (!found || !found.positions.length) return null;
 
   const p = found.positions[0];

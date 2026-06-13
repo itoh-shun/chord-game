@@ -4,9 +4,12 @@ import { getChordShape } from "@/lib/chordShapes";
 export function ChordDiagram({
   chordName,
   size = 1,
+  fallbackNotes = [],
 }: {
   chordName: string;
   size?: number;
+  /** 運指が無い場合に表示する構成音(音名) */
+  fallbackNotes?: string[];
 }) {
   const shape = getChordShape(chordName);
 
@@ -24,17 +27,33 @@ export function ChordDiagram({
   const stroke = "#3a1d6e";
 
   if (!shape) {
+    // 運指が無いときは構成音(音名)を縦に表示する
     return (
       <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-label={chordName}>
-        <text
-          x={w / 2}
-          y={h / 2}
-          textAnchor="middle"
-          fontSize={9 * size}
-          fill={stroke}
-        >
-          ?
-        </text>
+        <rect
+          x={0.5}
+          y={padTop - 2 * size}
+          width={w - 1}
+          height={gridH + 4 * size}
+          rx={3 * size}
+          fill="none"
+          stroke={stroke}
+          strokeWidth={0.6 * size}
+          strokeDasharray={`${2 * size} ${1.5 * size}`}
+        />
+        {fallbackNotes.slice(0, 5).map((n, i) => (
+          <text
+            key={i}
+            x={w / 2}
+            y={padTop + 6 * size + i * 7.5 * size}
+            textAnchor="middle"
+            fontSize={7 * size}
+            fontWeight="bold"
+            fill={stroke}
+          >
+            {n}
+          </text>
+        ))}
       </svg>
     );
   }

@@ -3,7 +3,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import type { ChordCard } from "@/types";
-import { romanToChordName } from "@/lib/music";
+import { romanToChordName, romanToNotes } from "@/lib/music";
 import { ChordDiagram } from "@/components/ChordDiagram";
 
 const SECTION_LABEL: Record<ChordCard["section"], string> = {
@@ -56,12 +56,16 @@ export function ChordContent({
     <div className="flex flex-wrap gap-x-1.5 gap-y-1">
       {card.progression.map((roman, i) => {
         const name = romanToChordName(roman, songKey);
+        // 構成音(オクターブ番号を除いた音名)。運指が無いとき表示。
+        const notes = romanToNotes(roman, songKey).map((n) =>
+          n.replace(/\d+$/, ""),
+        );
         return (
           <div key={i} className="flex flex-col items-center">
             <span className="text-[11px] font-black leading-none text-stone-800">
               {name}
             </span>
-            <ChordDiagram chordName={name} size={size} />
+            <ChordDiagram chordName={name} size={size} fallbackNotes={notes} />
             <span className="text-[9px] leading-none text-stone-400">
               {roman}
             </span>
