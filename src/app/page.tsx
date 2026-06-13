@@ -1,9 +1,9 @@
-import { GameBoard } from "@/components/GameBoard";
+import { CompositionTavern } from "@/components/CompositionTavern";
 
 export default function Home() {
   return (
     <main className="flex flex-1 flex-col">
-      <GameBoard />
+      <CompositionTavern />
     </main>
   );
 }

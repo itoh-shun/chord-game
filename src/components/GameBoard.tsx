@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -25,14 +25,8 @@ import { ChordCardFace } from "@/components/ChordCardView";
 
 export function GameBoard() {
   const session = useGameStore((s) => s.session);
-  const newGame = useGameStore((s) => s.newGame);
   const placeCard = useGameStore((s) => s.placeCard);
   const [activeCard, setActiveCard] = useState<ChordCard | null>(null);
-
-  // 乱数を使うためクライアントマウント後に初期セッションを生成
-  useEffect(() => {
-    if (!useGameStore.getState().session) newGame();
-  }, [newGame]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -70,42 +64,39 @@ export function GameBoard() {
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActiveCard(null)}
     >
-      <div className="mx-auto w-full max-w-6xl space-y-5 p-4 sm:p-6">
-        <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-3xl font-black tracking-wide text-brass-bright drop-shadow">
+      <div className="mx-auto w-full max-w-[480px] space-y-4 p-3 pb-8">
+        <header className="flex items-center justify-between">
+          <h1 className="text-xl font-black tracking-wide text-brass-bright drop-shadow">
             🍻 作曲酒場
-            <span className="ml-2 text-base font-normal text-foreground/50">
-              （仮）
-            </span>
           </h1>
-          <Controls />
+          <span className="text-xs text-brass/70">
+            Key = {session.key}
+            {session.modulationSemitones !== 0 && " ↗︎転調"}
+          </span>
         </header>
 
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="space-y-3">
           <CustomerCardView customer={session.customer} />
           <ThemeCardsView themes={session.themes} />
           <SpecialCardView special={session.special} />
         </div>
 
-        <section className="rounded-xl bg-wood-dark/60 p-4 shadow-inner ring-1 ring-brass/30">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-brass-bright">
-              曲構成ボード
-            </h2>
-            <span className="text-xs text-brass/70">
-              Key = {session.key}
-              {session.modulationSemitones !== 0 &&
-                `（ラストサビで転調）`}
-            </span>
-          </div>
+        <section className="rounded-xl bg-wood-dark/60 p-3 shadow-inner ring-1 ring-brass/30">
+          <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-brass-bright">
+            曲構成ボード
+          </h2>
           <StructureBoard />
         </section>
 
         <Hand />
 
-        <footer className="pt-2 text-center text-xs text-foreground/40">
-          手札カードを構成ボードのスロットへドラッグ＆ドロップ。配置済みカードはクリックで手札に戻ります。
-        </footer>
+        <p className="text-center text-xs text-foreground/40">
+          カードを構成ボードへドラッグ＆ドロップ。配置済みはタップで手札に戻ります。
+        </p>
+
+        <div className="sticky bottom-0 -mx-3 bg-gradient-to-t from-background via-background to-transparent px-3 pb-3 pt-6">
+          <Controls />
+        </div>
       </div>
 
       <DragOverlay dropAnimation={null}>

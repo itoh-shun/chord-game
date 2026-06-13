@@ -5,12 +5,19 @@ import type { GameSession } from "@/lib/game";
 import { createSession } from "@/lib/game";
 import type { BoardSlot, ChordCard } from "@/types";
 
+/** 画面フェーズ: パック待機 → 開封演出 → 中身公開 → 作曲ボード */
+export type Phase = "pack" | "opening" | "revealed" | "playing";
+
 type GameState = {
   session: GameSession | null;
+  phase: Phase;
   /** 再生中にハイライトする小節インデックス(-1=なし) */
   playingStep: number;
   isPlaying: boolean;
 
+  setPhase: (phase: Phase) => void;
+  /** パックを開封して新しいセッションを生成 */
+  openPack: () => void;
   newGame: () => void;
   reset: () => void;
   /** 手札のカードをスロットに配置する */
@@ -23,11 +30,27 @@ type GameState = {
 
 export const useGameStore = create<GameState>((set, get) => ({
   session: null,
+  phase: "pack",
   playingStep: -1,
   isPlaying: false,
 
-  newGame: () => set({ session: createSession(), playingStep: -1, isPlaying: false }),
-  reset: () => set({ session: null, playingStep: -1, isPlaying: false }),
+  setPhase: (phase) => set({ phase }),
+  openPack: () =>
+    set({
+      session: createSession(),
+      phase: "opening",
+      playingStep: -1,
+      isPlaying: false,
+    }),
+  newGame: () =>
+    set({
+      session: createSession(),
+      phase: "playing",
+      playingStep: -1,
+      isPlaying: false,
+    }),
+  reset: () =>
+    set({ session: null, phase: "pack", playingStep: -1, isPlaying: false }),
 
   placeCard: (cardId, slotId) => {
     const { session } = get();

@@ -4,7 +4,7 @@ import { useGameStore } from "@/store/gameStore";
 import { usePlayback } from "@/hooks/usePlayback";
 
 export function Controls() {
-  const newGame = useGameStore((s) => s.newGame);
+  const reset = useGameStore((s) => s.reset);
   const { play, stop, isPlaying, canPlay, placedCount, totalSlots } =
     usePlayback();
 
@@ -33,15 +33,15 @@ export function Controls() {
         type="button"
         onClick={() => {
           stop();
-          newGame();
+          reset();
         }}
         className="rounded-lg bg-wood-light px-5 py-2.5 font-bold text-foreground shadow transition hover:brightness-110"
       >
-        🎲 新しい依頼
+        🎴 新しいパック
       </button>
 
       <span className="text-sm text-brass/80">
-        配置: {placedCount} / {totalSlots} 小節枠
+        配置: {placedCount} / {totalSlots}
       </span>
     </div>
   );
