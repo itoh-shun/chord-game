@@ -16,9 +16,48 @@ import {
   playSong,
   stopProgression,
   prepareInstrument,
+  INSTRUMENTS,
   type InstrumentId,
 } from "@/lib/audio";
 import { downloadMidi } from "@/lib/midi";
+import { generateBrief, scoreSong, type Brief, type Result } from "@/lib/challenge";
+
+/** コインで解放される楽器の閾値(累計コイン) */
+const UNLOCKS: { id: InstrumentId; coins: number }[] = [
+  { id: "eguitar", coins: 60 },
+  { id: "epiano", coins: 140 },
+  { id: "synth", coins: 240 },
+  { id: "synthbright", coins: 360 },
+];
+const BASE_UNLOCKED: InstrumentId[] = ["piano", "aguitar"];
+
+function loadProgress(): { coins: number; clears: number; unlocked: InstrumentId[] } {
+  if (typeof window === "undefined")
+    return { coins: 0, clears: 0, unlocked: BASE_UNLOCKED };
+  try {
+    const raw = localStorage.getItem("cs_progress");
+    if (raw) {
+      const p = JSON.parse(raw);
+      return {
+        coins: p.coins ?? 0,
+        clears: p.clears ?? 0,
+        unlocked: p.unlocked ?? BASE_UNLOCKED,
+      };
+    }
+  } catch {}
+  return { coins: 0, clears: 0, unlocked: BASE_UNLOCKED };
+}
+function saveProgress(p: { coins: number; clears: number; unlocked: InstrumentId[] }) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem("cs_progress", JSON.stringify(p));
+  } catch {}
+}
+
+export function instrumentUnlocked(id: InstrumentId, unlocked: InstrumentId[]): boolean {
+  return unlocked.includes(id);
+}
+export { INSTRUMENTS };
 
 type State = {
   song: Song;
@@ -32,6 +71,21 @@ type State = {
   current: number;
   /** 編集対象のコード {sectionId, chordId} */
   editing: { sectionId: string; chordId: string } | null;
+
+  // ===== ゲーム(お題チャレンジ) =====
+  brief: Brief | null;
+  result: Result | null;
+  coins: number;
+  clears: number;
+  unlocked: InstrumentId[];
+  /** 直近で解放された楽器(結果画面の演出用) */
+  justUnlocked: InstrumentId[];
+
+  hydrate: () => void;
+  startChallenge: () => void;
+  submitChallenge: () => void;
+  closeResult: () => void;
+  nextChallenge: () => void;
 
   setMode: (m: Mode) => void;
   setKey: (k: string) => void;
@@ -67,7 +121,7 @@ const mapSections = (song: Song, fn: (s: Song["sections"][number]) => Song["sect
 
 export const useSongStore = create<State>((set, get) => ({
   song: defaultSong(),
-  mode: "compose",
+  mode: "play",
   instrument: "piano",
   drums: true,
   countIn: true,
@@ -76,16 +130,58 @@ export const useSongStore = create<State>((set, get) => ({
   current: -1,
   editing: null,
 
+  brief: null,
+  result: null,
+  coins: 0,
+  clears: 0,
+  unlocked: BASE_UNLOCKED,
+  justUnlocked: [],
+
+  hydrate: () => {
+    const p = loadProgress();
+    set(p);
+    if (!get().brief) get().startChallenge();
+  },
+  startChallenge: () =>
+    set({ brief: generateBrief(), result: null, song: defaultSong(), editing: null }),
+  submitChallenge: () => {
+    const { song, brief, coins, clears, unlocked } = get();
+    if (!brief) return;
+    const result = scoreSong(song, brief);
+    const newCoins = coins + result.coins;
+    const justUnlocked = UNLOCKS.filter(
+      (u) => !unlocked.includes(u.id) && newCoins >= u.coins,
+    ).map((u) => u.id);
+    const newUnlocked = [...unlocked, ...justUnlocked];
+    const next = { coins: newCoins, clears: clears + 1, unlocked: newUnlocked };
+    saveProgress(next);
+    set({ result, ...next, justUnlocked });
+  },
+  closeResult: () => set({ result: null, justUnlocked: [] }),
+  nextChallenge: () => {
+    get().stop();
+    set({
+      result: null,
+      justUnlocked: [],
+      brief: generateBrief(),
+      song: defaultSong(),
+      editing: null,
+    });
+  },
+
   setMode: (mode) => {
     get().stop();
     set({ mode });
+    if (mode === "play" && !get().brief) get().startChallenge();
   },
   setKey: (k) => set((s) => ({ song: { ...s.song, key: k } })),
   transposeBy: (semi) =>
     set((s) => ({ song: { ...s.song, key: transposeKey(s.song.key, semi) } })),
   setTempo: (t) =>
     set((s) => ({ song: { ...s.song, tempo: Math.max(40, Math.min(220, t)) } })),
-  setInstrument: (instrument) => set({ instrument }),
+  setInstrument: (instrument) => {
+    if (get().unlocked.includes(instrument)) set({ instrument });
+  },
   toggleDrums: () => set((s) => ({ drums: !s.drums })),
   toggleCountIn: () => set((s) => ({ countIn: !s.countIn })),
 
