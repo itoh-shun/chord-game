@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
+// GitHub Pages(プロジェクトページ)向けの静的書き出し設定。
+// Actions では GITHUB_PAGES=true をセットしてサブパス配信にする。
+const isPages = process.env.GITHUB_PAGES === "true";
+const repo = "chord-game";
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: "export",
+  images: { unoptimized: true },
+  basePath: isPages ? `/${repo}` : "",
+  assetPrefix: isPages ? `/${repo}/` : "",
+  trailingSlash: true,
 };
 
 export default nextConfig;
