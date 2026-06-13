@@ -9,8 +9,11 @@ export function Hand() {
 
   return (
     <section className="rounded-2xl bg-wood-dark/90 p-4 shadow-[0_6px_0_rgba(0,0,0,0.06)] ring-2 ring-pop-cyan/50">
-      <h2 className="mb-3 flex items-center gap-1.5 text-sm font-black tracking-wide text-brass">
-        🎴 手札 ({hand.length})
+      <h2 className="mb-3 flex flex-wrap items-center gap-x-2 text-sm font-black tracking-wide text-brass">
+        🎴 コードカード ({hand.length})
+        <span className="text-[11px] font-bold text-foreground/45">
+          置いても減りません・使い回しOK
+        </span>
       </h2>
       {hand.length === 0 ? (
         <p className="text-sm text-foreground/60">

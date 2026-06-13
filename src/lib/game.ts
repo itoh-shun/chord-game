@@ -4,6 +4,7 @@ import customersData from "@/data/customers.json";
 import themesData from "@/data/themes.json";
 import chordsData from "@/data/chords.json";
 import specialsData from "@/data/specials.json";
+import structuresData from "@/data/structures.json";
 import type {
   ChordCard,
   CustomerCard,
@@ -12,6 +13,7 @@ import type {
   SpecialCard,
   ThemeCard,
   BoardSlot,
+  StructurePattern,
 } from "@/types";
 import { pickOne, shuffle, genId } from "@/lib/random";
 import { AVAILABLE_KEYS } from "@/lib/music";
@@ -20,20 +22,14 @@ export const customers = customersData as CustomerCard[];
 export const themes = themesData as ThemeCard[];
 export const chords = chordsData as ChordCard[];
 export const specials = specialsData as SpecialCard[];
-
-/** 曲構成テンプレート (S=サビ) */
-const STRUCTURE_TEMPLATES: Section[][] = [
-  ["A", "A", "B", "S", "A", "B", "S", "C", "S"],
-  ["A", "B", "S", "A", "B", "S", "C", "S"],
-  ["A", "A", "B", "S", "B", "S", "C", "S"],
-  ["A", "B", "S", "A", "B", "S", "S"],
-  ["A", "A", "B", "S", "A", "A", "B", "S", "C", "S"],
-];
+export const structures = structuresData as StructurePattern[];
 
 export type GameSession = {
   customer: CustomerCard;
   themes: DrawnThemes;
   board: BoardSlot[];
+  /** 採用した曲構成パターン */
+  structure: StructurePattern;
   /** 配られた全コードカード(id -> カード) */
   dealtCards: Record<string, ChordCard>;
   special: SpecialCard;
@@ -43,28 +39,53 @@ export type GameSession = {
   modulationSemitones: number;
 };
 
-function drawThemes(): DrawnThemes {
-  const byCat = (cat: ThemeCard["category"]) =>
-    pickOne(themes.filter((t) => t.category === cat));
+/**
+ * お題を引く。客の「合う候補(fit)」がある項目はその中から引き、
+ * 客と矛盾しないお題にする。
+ */
+function drawThemes(customer: CustomerCard): DrawnThemes {
+  const byCat = (
+    cat: ThemeCard["category"],
+    fit?: string[],
+  ): ThemeCard => {
+    const all = themes.filter((t) => t.category === cat);
+    if (fit && fit.length) {
+      const narrowed = all.filter((t) => fit.includes(t.value));
+      if (narrowed.length) return pickOne(narrowed);
+    }
+    return pickOne(all);
+  };
+  const fit = customer.fit ?? {};
   return {
-    genre: byCat("genre"),
-    tempo: byCat("tempo"),
-    mood: byCat("mood"),
-    situation: byCat("situation"),
+    genre: byCat("genre", fit.genre),
+    tempo: byCat("tempo", fit.tempo),
+    mood: byCat("mood", fit.mood),
+    situation: byCat("situation", fit.situation),
   };
 }
 
+/** ブロック配列からボードスロットを作る */
+function blocksToBoard(blocks: StructurePattern["blocks"]): BoardSlot[] {
+  return blocks.map((b) => ({
+    id: genId("slot"),
+    section: b.section,
+    label: b.label,
+    bars: b.bars,
+    cardId: null,
+  }));
+}
+
 /** 構成に必要なセクション数を数え、各セクションのカードを余裕をもって配る */
-function dealHand(structure: Section[]): Record<string, ChordCard> {
+function dealHand(board: BoardSlot[]): Record<string, ChordCard> {
   const counts: Record<Section, number> = { A: 0, B: 0, S: 0, C: 0 };
-  for (const s of structure) counts[s]++;
+  for (const slot of board) counts[slot.section]++;
 
   const dealt: Record<string, ChordCard> = {};
   (Object.keys(counts) as Section[]).forEach((section) => {
     if (counts[section] === 0) return;
     const pool = shuffle(chords.filter((c) => c.section === section));
-    // 必要数 + 予備2枚 (プールが足りなければある分だけ)
-    const need = Math.min(counts[section] + 2, pool.length);
+    // 必要数 + 予備3枚 (手札は使い回せるので少し多めの選択肢を配る)
+    const need = Math.min(counts[section] + 3, pool.length);
     pool.slice(0, need).forEach((card) => {
       dealt[card.id] = card;
     });
@@ -72,37 +93,44 @@ function dealHand(structure: Section[]): Record<string, ChordCard> {
   return dealt;
 }
 
-/** 店長カードを構成・キーに適用する */
+function slot(
+  section: Section,
+  label: string,
+  bars: number,
+): BoardSlot {
+  return { id: genId("slot"), section, label, bars, cardId: null };
+}
+
+/** 店長カードを構成(スロット列)・キーに適用する */
 function applySpecial(
   special: SpecialCard,
-  structure: Section[],
-): { structure: Section[]; modulationSemitones: number } {
-  const newStructure = [...structure];
+  board: BoardSlot[],
+): { board: BoardSlot[]; modulationSemitones: number } {
+  const next = [...board];
   let modulationSemitones = 0;
 
+  const firstS = next.findIndex((s) => s.section === "S");
+  const lastS = next.map((s) => s.section).lastIndexOf("S");
+
   switch (special.id) {
-    case "sp_add2bars": {
-      // サビ前にCメロ(展開)枠を1つ挿入する代わりに、最初のサビ前に休止枠は持たないため
-      // 構成上は何もしないが、最初のSの直前にBを追加して「タメ」を表現
-      const idx = newStructure.indexOf("S");
-      if (idx > 0) newStructure.splice(idx, 0, "B");
+    case "sp_add2bars":
+      // 最初のサビ前に「前サビ」枠(4小節)を挿入してタメを作る
+      if (firstS >= 0) next.splice(firstS, 0, slot("B", "前サビ", 4));
       break;
-    }
     case "sp_cut4bars": {
-      // 末尾以外の1枠を削る
-      if (newStructure.length > 4) newStructure.splice(1, 1);
+      // サビ以外の1ブロックを削る
+      const idx = next.findIndex((s) => s.section !== "S");
+      if (idx >= 0 && next.length > 3) next.splice(idx, 1);
       break;
     }
     case "sp_add_c":
-      // 最後のサビ前にCメロを追加
-      {
-        const lastS = newStructure.lastIndexOf("S");
-        if (lastS >= 0) newStructure.splice(lastS, 0, "C");
-        else newStructure.push("C");
-      }
+      // 最後のサビ前にCメロ(4小節)を追加
+      if (lastS >= 0) next.splice(lastS, 0, slot("C", "Cメロ", 4));
+      else next.push(slot("C", "Cメロ", 4));
       break;
     case "sp_add_chorus":
-      newStructure.push("S");
+      // 大サビ(8小節)を末尾に追加
+      next.push(slot("S", "大サビ", 8));
       break;
     case "sp_half_up":
       modulationSemitones = 1;
@@ -118,37 +146,46 @@ function applySpecial(
       // constraint / genre 系は構成・キー変更なし(創作指示のみ)
       break;
   }
-  return { structure: newStructure, modulationSemitones };
+  return { board: next, modulationSemitones };
 }
 
 /** 新しいゲームセッションを生成する */
 export function createSession(): GameSession {
   const customer = pickOne(customers);
-  const drawn = drawThemes();
+  const drawn = drawThemes(customer);
   const key = pickOne(AVAILABLE_KEYS);
   const special = pickOne(specials);
+  const structure = pickOne(structures);
 
-  const baseStructure = pickOne(STRUCTURE_TEMPLATES);
-  const { structure, modulationSemitones } = applySpecial(
-    special,
-    baseStructure,
-  );
+  const baseBoard = blocksToBoard(structure.blocks);
+  const { board, modulationSemitones } = applySpecial(special, baseBoard);
 
-  const board: BoardSlot[] = structure.map((section) => ({
-    id: genId("slot"),
-    section,
-    cardId: null,
-  }));
-
-  const dealtCards = dealHand(structure);
+  const dealtCards = dealHand(board);
 
   return {
     customer,
     themes: drawn,
     board,
+    structure,
     dealtCards,
     special,
     key,
     modulationSemitones,
   };
+}
+
+/** 構成の要約(サビ小節数・前サビ有無など) */
+export function structureSummary(board: BoardSlot[]): {
+  chorusBars: number;
+  hasPreChorus: boolean;
+  totalBars: number;
+} {
+  const chorusBars = Math.max(
+    0,
+    ...board.filter((s) => s.label === "サビ").map((s) => s.bars),
+    ...board.filter((s) => s.section === "S").map((s) => s.bars),
+  );
+  const hasPreChorus = board.some((s) => s.label === "前サビ");
+  const totalBars = board.reduce((sum, s) => sum + s.bars, 0);
+  return { chorusBars, hasPreChorus, totalBars };
 }

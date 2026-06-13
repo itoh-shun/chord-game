@@ -12,6 +12,7 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { useGameStore } from "@/store/gameStore";
+import { structureSummary } from "@/lib/game";
 import type { ChordCard } from "@/types";
 import {
   CustomerCardView,
@@ -86,16 +87,25 @@ export function GameBoard() {
         </div>
 
         <section className="rounded-xl bg-wood-dark/60 p-3 shadow-inner ring-1 ring-brass/30">
-          <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-brass-bright">
-            曲構成ボード
-          </h2>
+          <div className="mb-3">
+            <h2 className="flex items-center gap-1.5 text-sm font-black tracking-wide text-brass">
+              🎼 曲構成: {session.structure.name}
+            </h2>
+            <p className="mt-1 text-xs text-foreground/60">
+              {(() => {
+                const { chorusBars, hasPreChorus, totalBars } =
+                  structureSummary(session.board);
+                return `全${totalBars}小節 ・ サビ${chorusBars}小節${hasPreChorus ? " ・ 前サビあり" : ""}`;
+              })()}
+            </p>
+          </div>
           <StructureBoard />
         </section>
 
         <Hand />
 
         <p className="text-center text-xs text-foreground/40">
-          カードを構成ボードへドラッグ＆ドロップ。配置済みはタップで手札に戻ります。
+          カードを構成ボードへドラッグ＆ドロップ。同じカードを何度でも置けます（配置済みはタップで外す）。
         </p>
 
         <div className="sticky bottom-0 -mx-3 bg-gradient-to-t from-background via-background to-transparent px-3 pb-3 pt-6">

@@ -3,7 +3,7 @@
 import { useDroppable } from "@dnd-kit/core";
 import type { BoardSlot } from "@/types";
 import { useGameStore } from "@/store/gameStore";
-import { ChordCardFace, SECTION_LABEL } from "@/components/ChordCardView";
+import { ChordCardFace } from "@/components/ChordCardView";
 import { transposeKey } from "@/lib/music";
 
 function Slot({
@@ -57,19 +57,22 @@ function Slot({
           <button
             type="button"
             onClick={() => removeFromSlot(slot.id)}
-            title="クリックで手札に戻す"
+            title="クリックで外す"
             className="w-full text-left"
           >
             <ChordCardFace card={card} songKey={slotKey} compact />
           </button>
         ) : (
-          <span className="text-3xl font-black text-pop-purple/40">
-            {slot.section}
-          </span>
+          <div className="flex flex-col items-center text-pop-purple/45">
+            <span className="text-xl font-black">{slot.label}</span>
+            <span className="mt-0.5 text-[11px] font-bold">
+              {slot.bars}小節
+            </span>
+          </div>
         )}
       </div>
       <span className="text-[11px] font-bold text-brass/80">
-        {index + 1}. {SECTION_LABEL[slot.section]}
+        {index + 1}. {slot.label}・{slot.bars}小節
       </span>
     </div>
   );

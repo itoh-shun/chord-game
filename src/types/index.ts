@@ -7,6 +7,13 @@ export type CustomerCard = {
   id: string;
   title: string;
   description: string;
+  /** この依頼に合うお題候補(お題はこの範囲から引いて矛盾を防ぐ) */
+  fit?: {
+    genre?: string[];
+    tempo?: string[];
+    mood?: string[];
+    situation?: string[];
+  };
 };
 
 export type ThemeCategory = "genre" | "tempo" | "mood" | "situation";
@@ -48,10 +55,28 @@ export type SpecialCard = {
   type: SpecialType;
 };
 
-/** 曲構成ボードの1スロット */
+/** 曲構成ボードの1スロット(=1ブロック) */
 export type BoardSlot = {
   id: string;
   section: Section;
+  /** 表示名(Aメロ/前サビ/サビ/大サビ/Cメロ など) */
+  label: string;
+  /** このブロックの小節数 */
+  bars: number;
   /** 配置されたコードカードのID（未配置はnull） */
   cardId: string | null;
+};
+
+/** 曲構成パターン(お題) */
+export type StructureBlock = {
+  label: string;
+  section: Section;
+  bars: number;
+};
+
+export type StructurePattern = {
+  id: string;
+  name: string;
+  description: string;
+  blocks: StructureBlock[];
 };

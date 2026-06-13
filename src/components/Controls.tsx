@@ -5,6 +5,8 @@ import { usePlayback } from "@/hooks/usePlayback";
 
 export function Controls() {
   const reset = useGameStore((s) => s.reset);
+  const drums = useGameStore((s) => s.drums);
+  const toggleDrums = useGameStore((s) => s.toggleDrums);
   const { play, stop, isPlaying, canPlay, placedCount, totalSlots } =
     usePlayback();
 
@@ -28,6 +30,20 @@ export function Controls() {
           ▶ コード進行を再生
         </button>
       )}
+
+      <button
+        type="button"
+        onClick={toggleDrums}
+        aria-pressed={drums}
+        title="ドラムのオン/オフ"
+        className={`rounded-2xl px-4 py-2.5 font-black shadow ring-2 transition active:scale-95 ${
+          drums
+            ? "bg-pop-lime/30 text-foreground ring-pop-lime"
+            : "bg-white/70 text-foreground/50 ring-foreground/15"
+        }`}
+      >
+        🥁 {drums ? "ON" : "OFF"}
+      </button>
 
       <button
         type="button"

@@ -23,13 +23,18 @@ export function buildSteps(session: GameSession): BuiStep[] {
       modulationSemitones !== 0 && slotIndex >= lastChorusIndex
         ? transposeKey(key, modulationSemitones)
         : key;
-    card.progression.forEach((roman) => {
-      steps.push({
-        notes: romanToNotes(roman, useKey),
-        label: romanToChordName(roman, useKey),
-        slotIndex,
+    // ブロックの小節数を満たすよう、コード進行を繰り返して並べる
+    const progLen = card.progression.length || 4;
+    const repeats = Math.max(1, Math.round(slot.bars / progLen));
+    for (let r = 0; r < repeats; r++) {
+      card.progression.forEach((roman) => {
+        steps.push({
+          notes: romanToNotes(roman, useKey),
+          label: romanToChordName(roman, useKey),
+          slotIndex,
+        });
       });
-    });
+    }
   });
   return steps;
 }
@@ -37,6 +42,7 @@ export function buildSteps(session: GameSession): BuiStep[] {
 export function usePlayback() {
   const session = useGameStore((s) => s.session);
   const isPlaying = useGameStore((s) => s.isPlaying);
+  const drums = useGameStore((s) => s.drums);
   const setIsPlaying = useGameStore((s) => s.setIsPlaying);
   const setPlayingStep = useGameStore((s) => s.setPlayingStep);
 
@@ -47,11 +53,16 @@ export function usePlayback() {
     const bpm = Number(session.themes.tempo.value) || 120;
 
     setIsPlaying(true);
-    await playProgression(steps, bpm, {
-      onStep: (i) => setPlayingStep(steps[i].slotIndex),
-      onEnd: () => setIsPlaying(false),
-    });
-  }, [session, setIsPlaying, setPlayingStep]);
+    await playProgression(
+      steps,
+      bpm,
+      {
+        onStep: (i) => setPlayingStep(steps[i].slotIndex),
+        onEnd: () => setIsPlaying(false),
+      },
+      { drums },
+    );
+  }, [session, drums, setIsPlaying, setPlayingStep]);
 
   const stop = useCallback(() => {
     stopProgression();

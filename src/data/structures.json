@@ -1,0 +1,72 @@
+[
+  {
+    "id": "st_one_chorus",
+    "name": "ワンコーラス",
+    "description": "サクッと1番だけ。配信や試作にぴったり。",
+    "blocks": [
+      { "label": "Aメロ", "section": "A", "bars": 4 },
+      { "label": "前サビ", "section": "B", "bars": 4 },
+      { "label": "サビ", "section": "S", "bars": 8 }
+    ]
+  },
+  {
+    "id": "st_royal_full",
+    "name": "王道（2番＋大サビ）",
+    "description": "テレビサイズの王道。最後は大サビで盛り上げ。",
+    "blocks": [
+      { "label": "Aメロ", "section": "A", "bars": 8 },
+      { "label": "前サビ", "section": "B", "bars": 4 },
+      { "label": "サビ", "section": "S", "bars": 8 },
+      { "label": "Aメロ", "section": "A", "bars": 8 },
+      { "label": "前サビ", "section": "B", "bars": 4 },
+      { "label": "サビ", "section": "S", "bars": 8 },
+      { "label": "大サビ", "section": "S", "bars": 8 }
+    ]
+  },
+  {
+    "id": "st_band",
+    "name": "バンド疾走",
+    "description": "勢い重視のロック構成。Cメロで一度落とす。",
+    "blocks": [
+      { "label": "Aメロ", "section": "A", "bars": 8 },
+      { "label": "サビ", "section": "S", "bars": 8 },
+      { "label": "Aメロ", "section": "A", "bars": 8 },
+      { "label": "サビ", "section": "S", "bars": 8 },
+      { "label": "Cメロ", "section": "C", "bars": 8 },
+      { "label": "大サビ", "section": "S", "bars": 8 }
+    ]
+  },
+  {
+    "id": "st_ballad",
+    "name": "しっとりバラード",
+    "description": "ゆったり聴かせる構成。Cメロで切なく。",
+    "blocks": [
+      { "label": "Aメロ", "section": "A", "bars": 8 },
+      { "label": "Bメロ", "section": "B", "bars": 8 },
+      { "label": "サビ", "section": "S", "bars": 8 },
+      { "label": "Cメロ", "section": "C", "bars": 4 },
+      { "label": "大サビ", "section": "S", "bars": 8 }
+    ]
+  },
+  {
+    "id": "st_short",
+    "name": "ショート（CM/OP）",
+    "description": "短く強烈に。15〜30秒サイズ。",
+    "blocks": [
+      { "label": "Aメロ", "section": "A", "bars": 4 },
+      { "label": "前サビ", "section": "B", "bars": 4 },
+      { "label": "サビ", "section": "S", "bars": 8 }
+    ]
+  },
+  {
+    "id": "st_build",
+    "name": "前サビ強調型",
+    "description": "長めの前サビでタメてからサビへ。エモ重視。",
+    "blocks": [
+      { "label": "Aメロ", "section": "A", "bars": 8 },
+      { "label": "前サビ", "section": "B", "bars": 8 },
+      { "label": "サビ", "section": "S", "bars": 8 },
+      { "label": "大サビ", "section": "S", "bars": 8 }
+    ]
+  }
+]

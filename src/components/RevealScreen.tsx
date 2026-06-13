@@ -1,6 +1,7 @@
 "use client";
 
 import { useGameStore, selectHand } from "@/store/gameStore";
+import { structureSummary } from "@/lib/game";
 import { ChordCardFace } from "@/components/ChordCardView";
 import { describeKeyChange } from "@/lib/music";
 import type { DrawnThemes } from "@/types";
@@ -35,7 +36,8 @@ export function RevealScreen() {
   if (!session) return null;
 
   const hand = selectHand(session);
-  const { customer, themes, special } = session;
+  const { customer, themes, special, structure } = session;
+  const summary = structureSummary(session.board);
 
   return (
     <div className="mx-auto w-full max-w-[480px] px-4 pb-28 pt-6">
@@ -114,6 +116,36 @@ export function RevealScreen() {
         </div>
       </div>
 
+      {/* 曲構成お題 */}
+      <div className="deal-in mb-5" style={dealStyle(3, 2)}>
+        <div className="rounded-2xl bg-gradient-to-br from-pop-lime to-pop-cyan p-[2px] shadow-xl">
+          <div className="rounded-2xl bg-card p-4 text-card-ink">
+            <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-black text-emerald-700">
+              曲構成お題
+            </span>
+            <p className="mt-1.5 text-lg font-black">{structure.name}</p>
+            <p className="mt-0.5 text-sm text-stone-600">
+              {structure.description}
+            </p>
+            <p className="mt-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-bold text-stone-700">
+              全{summary.totalBars}小節 ・ サビ{summary.chorusBars}小節
+              {summary.hasPreChorus ? " ・ 前サビあり" : ""}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-1">
+              {session.board.map((s, i) => (
+                <span
+                  key={s.id}
+                  className="rounded-md bg-stone-100 px-2 py-1 text-[11px] font-bold text-stone-600"
+                >
+                  {i + 1}.{s.label}
+                  <span className="text-stone-400">/{s.bars}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* コードカード */}
       <h3 className="mb-2 text-sm font-bold tracking-widest text-brass-bright">
         コードカード × {hand.length}
@@ -123,7 +155,7 @@ export function RevealScreen() {
           <div
             key={card.id}
             className="deal-in"
-            style={dealStyle(3 + i, i % 2 ? 3 : -3)}
+            style={dealStyle(4 + i, i % 2 ? 3 : -3)}
           >
             <ChordCardFace card={card} songKey={session.key} compact />
           </div>

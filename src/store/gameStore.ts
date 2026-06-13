@@ -14,7 +14,10 @@ type GameState = {
   /** 再生中にハイライトする小節インデックス(-1=なし) */
   playingStep: number;
   isPlaying: boolean;
+  /** ドラムを鳴らすか */
+  drums: boolean;
 
+  toggleDrums: () => void;
   setPhase: (phase: Phase) => void;
   /** パックを開封して新しいセッションを生成 */
   openPack: () => void;
@@ -33,7 +36,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   phase: "pack",
   playingStep: -1,
   isPlaying: false,
+  drums: true,
 
+  toggleDrums: () => set((s) => ({ drums: !s.drums })),
   setPhase: (phase) => set({ phase }),
   openPack: () =>
     set({
@@ -59,13 +64,12 @@ export const useGameStore = create<GameState>((set, get) => ({
     if (!card) return;
 
     const board: BoardSlot[] = session.board.map((slot) => {
-      // セクションが一致しないスロットには置けない
+      // セクションが一致するスロットにのみ置ける。
+      // 手札は減らさず、同じカードを複数スロットに置ける(1番・2番で同じ進行など)。
       if (slot.id === slotId) {
         if (slot.section !== card.section) return slot;
         return { ...slot, cardId };
       }
-      // 同じカードが他スロットにあれば外す(移動)
-      if (slot.cardId === cardId) return { ...slot, cardId: null };
       return slot;
     });
     set({ session: { ...session, board } });
@@ -85,13 +89,13 @@ export const useGameStore = create<GameState>((set, get) => ({
     set({ isPlaying: playing, ...(playing ? {} : { playingStep: -1 }) }),
 }));
 
-/** 手札 = 配られたカードのうち、どのスロットにも置かれていないもの */
+/**
+ * 手札 = 配られたコードカード全部。
+ * 配置しても減らないので、同じカードを複数スロットに使い回せる。
+ */
 export function selectHand(session: GameSession | null): ChordCard[] {
   if (!session) return [];
-  const placed = new Set(
-    session.board.map((s) => s.cardId).filter(Boolean) as string[],
-  );
-  return Object.values(session.dealtCards).filter((c) => !placed.has(c.id));
+  return Object.values(session.dealtCards);
 }
 
 export type { ChordCard };
