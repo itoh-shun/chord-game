@@ -7,7 +7,7 @@ export function Controls() {
   const reset = useGameStore((s) => s.reset);
   const drums = useGameStore((s) => s.drums);
   const toggleDrums = useGameStore((s) => s.toggleDrums);
-  const { play, stop, isPlaying, canPlay, placedCount, totalSlots } =
+  const { play, stop, isPlaying, canPlay, placedCount, totalSlots, instrumentLabel } =
     usePlayback();
 
   return (
@@ -58,6 +58,9 @@ export function Controls() {
 
       <span className="text-sm font-bold text-brass/80">
         {placedCount} / {totalSlots}
+      </span>
+      <span className="rounded-full bg-pop-cyan/20 px-2.5 py-1 text-xs font-black text-foreground/70">
+        🎸 {instrumentLabel}
       </span>
     </div>
   );

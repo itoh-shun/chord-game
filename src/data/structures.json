@@ -5,7 +5,7 @@
     "description": "サクッと1番だけ。配信や試作にぴったり。",
     "blocks": [
       { "label": "Aメロ", "section": "A", "bars": 4 },
-      { "label": "前サビ", "section": "B", "bars": 4 },
+      { "label": "Bメロ", "section": "B", "bars": 4 },
       { "label": "サビ", "section": "S", "bars": 8 }
     ]
   },
@@ -15,10 +15,10 @@
     "description": "テレビサイズの王道。最後は大サビで盛り上げ。",
     "blocks": [
       { "label": "Aメロ", "section": "A", "bars": 8 },
-      { "label": "前サビ", "section": "B", "bars": 4 },
+      { "label": "Bメロ", "section": "B", "bars": 4 },
       { "label": "サビ", "section": "S", "bars": 8 },
       { "label": "Aメロ", "section": "A", "bars": 8 },
-      { "label": "前サビ", "section": "B", "bars": 4 },
+      { "label": "Bメロ", "section": "B", "bars": 4 },
       { "label": "サビ", "section": "S", "bars": 8 },
       { "label": "大サビ", "section": "S", "bars": 8 }
     ]
@@ -54,17 +54,18 @@
     "description": "短く強烈に。15〜30秒サイズ。",
     "blocks": [
       { "label": "Aメロ", "section": "A", "bars": 4 },
-      { "label": "前サビ", "section": "B", "bars": 4 },
+      { "label": "Bメロ", "section": "B", "bars": 4 },
       { "label": "サビ", "section": "S", "bars": 8 }
     ]
   },
   {
-    "id": "st_build",
-    "name": "前サビ強調型",
-    "description": "長めの前サビでタメてからサビへ。エモ重視。",
+    "id": "st_head_sabi",
+    "name": "前サビ始まり（頭サビ）",
+    "description": "いきなりサビから始める掴み重視の構成。OP向き。",
     "blocks": [
+      { "label": "前サビ", "section": "S", "bars": 4 },
       { "label": "Aメロ", "section": "A", "bars": 8 },
-      { "label": "前サビ", "section": "B", "bars": 8 },
+      { "label": "Bメロ", "section": "B", "bars": 4 },
       { "label": "サビ", "section": "S", "bars": 8 },
       { "label": "大サビ", "section": "S", "bars": 8 }
     ]

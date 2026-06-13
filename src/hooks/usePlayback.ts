@@ -2,7 +2,12 @@
 
 import { useCallback } from "react";
 import { useGameStore, selectHand } from "@/store/gameStore";
-import { playProgression, stopProgression, type PlayStep } from "@/lib/audio";
+import {
+  playProgression,
+  stopProgression,
+  pickInstrument,
+  type PlayStep,
+} from "@/lib/audio";
 import { romanToNotes, romanToChordName, transposeKey } from "@/lib/music";
 import type { GameSession } from "@/lib/game";
 
@@ -46,11 +51,16 @@ export function usePlayback() {
   const setIsPlaying = useGameStore((s) => s.setIsPlaying);
   const setPlayingStep = useGameStore((s) => s.setPlayingStep);
 
+  const instrument = session
+    ? pickInstrument(session.themes.genre.value, session.special)
+    : { id: "piano" as const, label: "ピアノ" };
+
   const play = useCallback(async () => {
     if (!session) return;
     const steps = buildSteps(session);
     if (steps.length === 0) return;
     const bpm = Number(session.themes.tempo.value) || 120;
+    const inst = pickInstrument(session.themes.genre.value, session.special);
 
     setIsPlaying(true);
     await playProgression(
@@ -60,7 +70,7 @@ export function usePlayback() {
         onStep: (i) => setPlayingStep(steps[i].slotIndex),
         onEnd: () => setIsPlaying(false),
       },
-      { drums },
+      { drums, instrument: inst.id },
     );
   }, [session, drums, setIsPlaying, setPlayingStep]);
 
@@ -77,5 +87,14 @@ export function usePlayback() {
   const totalSlots = session ? session.board.length : 0;
   const handRemaining = selectHand(session).length;
 
-  return { play, stop, isPlaying, canPlay, placedCount, totalSlots, handRemaining };
+  return {
+    play,
+    stop,
+    isPlaying,
+    canPlay,
+    placedCount,
+    totalSlots,
+    handRemaining,
+    instrumentLabel: instrument.label,
+  };
 }

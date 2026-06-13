@@ -93,9 +93,9 @@ export function GameBoard() {
             </h2>
             <p className="mt-1 text-xs text-foreground/60">
               {(() => {
-                const { chorusBars, hasPreChorus, totalBars } =
+                const { chorusBars, startsWithChorus, totalBars } =
                   structureSummary(session.board);
-                return `全${totalBars}小節 ・ サビ${chorusBars}小節${hasPreChorus ? " ・ 前サビあり" : ""}`;
+                return `全${totalBars}小節 ・ サビ${chorusBars}小節${startsWithChorus ? " ・ 前サビ(サビ始まり)" : ""}`;
               })()}
             </p>
           </div>

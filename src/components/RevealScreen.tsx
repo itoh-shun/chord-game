@@ -129,7 +129,7 @@ export function RevealScreen() {
             </p>
             <p className="mt-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-bold text-stone-700">
               全{summary.totalBars}小節 ・ サビ{summary.chorusBars}小節
-              {summary.hasPreChorus ? " ・ 前サビあり" : ""}
+              {summary.startsWithChorus ? " ・ 前サビ(サビ始まり)" : ""}
             </p>
             <div className="mt-2 flex flex-wrap gap-1">
               {session.board.map((s, i) => (

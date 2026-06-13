@@ -109,13 +109,16 @@ function applySpecial(
   const next = [...board];
   let modulationSemitones = 0;
 
-  const firstS = next.findIndex((s) => s.section === "S");
+  // 「サビ」本体(前サビ=頭サビや大サビは除く)の位置
+  const firstMainChorus = next.findIndex((s) => s.label === "サビ");
+  const firstS =
+    firstMainChorus >= 0 ? firstMainChorus : next.findIndex((s) => s.section === "S");
   const lastS = next.map((s) => s.section).lastIndexOf("S");
 
   switch (special.id) {
     case "sp_add2bars":
-      // 最初のサビ前に「前サビ」枠(4小節)を挿入してタメを作る
-      if (firstS >= 0) next.splice(firstS, 0, slot("B", "前サビ", 4));
+      // サビ本体の前に「Bメロ」枠(4小節)を挿入してタメを作る
+      if (firstS >= 0) next.splice(firstS, 0, slot("B", "Bメロ", 4));
       break;
     case "sp_cut4bars": {
       // サビ以外の1ブロックを削る
@@ -174,18 +177,18 @@ export function createSession(): GameSession {
   };
 }
 
-/** 構成の要約(サビ小節数・前サビ有無など) */
+/** 構成の要約(サビ小節数・頭サビ有無など) */
 export function structureSummary(board: BoardSlot[]): {
   chorusBars: number;
-  hasPreChorus: boolean;
+  /** 前サビ(頭サビ=サビ始まり)かどうか */
+  startsWithChorus: boolean;
   totalBars: number;
 } {
-  const chorusBars = Math.max(
-    0,
-    ...board.filter((s) => s.label === "サビ").map((s) => s.bars),
-    ...board.filter((s) => s.section === "S").map((s) => s.bars),
-  );
-  const hasPreChorus = board.some((s) => s.label === "前サビ");
+  const mainChorus = board.filter((s) => s.label === "サビ").map((s) => s.bars);
+  const chorusBars = mainChorus.length
+    ? Math.max(...mainChorus)
+    : Math.max(0, ...board.filter((s) => s.section === "S").map((s) => s.bars));
+  const startsWithChorus = board[0]?.label === "前サビ";
   const totalBars = board.reduce((sum, s) => sum + s.bars, 0);
-  return { chorusBars, hasPreChorus, totalBars };
+  return { chorusBars, startsWithChorus, totalBars };
 }
