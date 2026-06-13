@@ -6,6 +6,7 @@ import { INSTRUMENTS } from "@/lib/audio";
 import type { Mode } from "@/types";
 
 const MODE_LABEL: Record<Mode, string> = {
+  combine: "つなぐ",
   play: "あそぶ",
   compose: "作曲",
   jam: "ジャム",
@@ -35,7 +36,7 @@ export function TopBar() {
 
       {/* モード切替 */}
       <div className="mb-2 flex rounded-full bg-white p-1 shadow ring-2 ring-pop-purple/30">
-        {(["play", "compose", "jam"] as const).map((m) => (
+        {(["combine", "play", "compose", "jam"] as const).map((m) => (
           <button
             key={m}
             type="button"

@@ -27,6 +27,7 @@ import {
   jazzify,
   type IdeaMood,
 } from "@/lib/ideas";
+import { DECK, assembleSong, type SectionKey } from "@/lib/deck";
 
 /** コインで解放される楽器の閾値(累計コイン) */
 const UNLOCKS: { id: InstrumentId; coins: number }[] = [
@@ -114,6 +115,13 @@ type State = {
   removeChord: (sectionId: string, chordId: string) => void;
   setEditing: (e: State["editing"]) => void;
 
+  // ===== つなぐ(カード組み合わせ) =====
+  sel: Record<SectionKey, number>;
+  cycleCard: (sk: SectionKey, dir: number) => void;
+  shuffleCombine: () => void;
+  /** 現在の組み合わせを編集用に compose へ送る */
+  sendToCompose: () => void;
+
   // ===== アイデア生成 =====
   ideaMood: IdeaMood;
   setIdeaMood: (m: IdeaMood) => void;
@@ -137,7 +145,8 @@ const mapSections = (song: Song, fn: (s: Song["sections"][number]) => Song["sect
 
 export const useSongStore = create<State>((set, get) => ({
   song: defaultSong(),
-  mode: "play",
+  mode: "combine",
+  sel: { A: 0, B: 0, S: 0 },
   instrument: "piano",
   drums: true,
   countIn: true,
@@ -156,8 +165,28 @@ export const useSongStore = create<State>((set, get) => ({
   hydrate: () => {
     const p = loadProgress();
     set(p);
-    if (!get().brief) get().startChallenge();
+    // つなぐモードの初期曲を組み立て
+    const { sel, song } = get();
+    set({ song: assembleSong(sel, song.key, song.tempo) });
   },
+
+  cycleCard: (sk, dir) => {
+    const { sel, song } = get();
+    const len = DECK[sk].length;
+    const next = { ...sel, [sk]: (sel[sk] + dir + len) % len };
+    set({ sel: next, song: assembleSong(next, song.key, song.tempo), current: -1 });
+  },
+  shuffleCombine: () => {
+    const { song } = get();
+    const next = {
+      A: Math.floor(Math.random() * DECK.A.length),
+      B: Math.floor(Math.random() * DECK.B.length),
+      S: Math.floor(Math.random() * DECK.S.length),
+    } as Record<SectionKey, number>;
+    get().stop();
+    set({ sel: next, song: assembleSong(next, song.key, song.tempo), current: -1 });
+  },
+  sendToCompose: () => set({ mode: "compose" }),
   startChallenge: () =>
     set({ brief: generateBrief(), result: null, song: defaultSong(), editing: null }),
   submitChallenge: () => {
@@ -189,6 +218,10 @@ export const useSongStore = create<State>((set, get) => ({
     get().stop();
     set({ mode });
     if (mode === "play" && !get().brief) get().startChallenge();
+    if (mode === "combine") {
+      const { sel, song } = get();
+      set({ song: assembleSong(sel, song.key, song.tempo) });
+    }
   },
   setKey: (k) => set((s) => ({ song: { ...s.song, key: k } })),
   transposeBy: (semi) =>

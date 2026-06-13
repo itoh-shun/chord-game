@@ -5,6 +5,7 @@ import { useSongStore } from "@/store/songStore";
 import { TopBar } from "@/components/TopBar";
 import { PlayBar } from "@/components/PlayBar";
 import { ComposeView } from "@/components/ComposeView";
+import { CombineView } from "@/components/CombineView";
 import { JamView } from "@/components/JamView";
 import { ChordEditor } from "@/components/ChordEditor";
 import { ChallengeBar } from "@/components/ChallengeBar";
@@ -23,8 +24,10 @@ export function ChordStudio() {
     <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col">
       <TopBar />
       <main className="flex-1 space-y-3 px-3 pb-4 pt-2">
+        {mode === "combine" && <CombineView />}
         {mode === "play" && <ChallengeBar />}
-        {mode === "jam" ? <JamView /> : <ComposeView />}
+        {mode === "jam" && <JamView />}
+        {(mode === "play" || mode === "compose") && <ComposeView />}
       </main>
       <PlayBar />
       <ChordEditor />

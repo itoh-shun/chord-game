@@ -42,4 +42,4 @@ export type Song = {
   sections: Section[];
 };
 
-export type Mode = "play" | "compose" | "jam";
+export type Mode = "combine" | "play" | "compose" | "jam";
