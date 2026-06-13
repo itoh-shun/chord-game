@@ -2,6 +2,7 @@
 
 import { useSongStore } from "@/store/songStore";
 import { QUALITIES, cellChordName, cellToRoman } from "@/lib/music";
+import { nextSuggestions } from "@/lib/ideas";
 import { ChordDiagram } from "@/components/ChordDiagram";
 import type { Quality } from "@/types";
 
@@ -23,6 +24,13 @@ export function ChordEditor() {
   const name = cellChordName(cell, song.key);
   const set = (patch: Partial<typeof cell>) =>
     updateChord(sec.id, cell.id, patch);
+
+  // 直前のコードから「流れに合う候補」を出す
+  const idx = sec.chords.findIndex((c) => c.id === cell.id);
+  const prev = idx > 0 ? sec.chords[idx - 1] : null;
+  const suggestions = nextSuggestions(prev ? prev.degree : 1).filter(
+    (s) => !(s.degree === cell.degree && s.quality === cell.quality),
+  );
 
   const pill = "rounded-xl px-3 py-2 text-sm font-black transition active:scale-95";
 
@@ -53,6 +61,32 @@ export function ChordEditor() {
             🗑 削除
           </button>
         </div>
+
+        {suggestions.length > 0 && (
+          <>
+            <p className="mb-1 text-xs font-bold text-stone-400">
+              💡 流れに合う候補（タップで置換）
+            </p>
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {suggestions.map((s, i) => {
+                const label = cellChordName(
+                  { id: "x", degree: s.degree, quality: s.quality, accidental: 0, beats: 4 },
+                  song.key,
+                );
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => set({ degree: s.degree, quality: s.quality, accidental: 0 })}
+                    className={`${pill} bg-pop-cyan/20 text-foreground`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
 
         <p className="mb-1 text-xs font-bold text-stone-400">度数（スケールの何番目）</p>
         <div className="mb-3 grid grid-cols-7 gap-1">

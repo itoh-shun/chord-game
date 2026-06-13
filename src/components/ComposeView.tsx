@@ -2,6 +2,7 @@
 
 import { useSongStore, songToEvents } from "@/store/songStore";
 import { SectionLane } from "@/components/SectionLane";
+import { IdeaBar } from "@/components/IdeaBar";
 
 export function ComposeView() {
   const song = useSongStore((s) => s.song);
@@ -13,8 +14,9 @@ export function ComposeView() {
 
   return (
     <div className="space-y-3">
+      <IdeaBar />
       <p className="text-center text-xs text-foreground/50">
-        コードをタップして度数・種類・長さを編集。セクションで展開を組み立て。
+        コードをタップして編集。💡で進行を生成、各展開はアレンジできます。
       </p>
       {song.sections.map((sec) => (
         <SectionLane

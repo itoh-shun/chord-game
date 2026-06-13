@@ -21,6 +21,12 @@ import {
 } from "@/lib/audio";
 import { downloadMidi } from "@/lib/midi";
 import { generateBrief, scoreSong, type Brief, type Result } from "@/lib/challenge";
+import {
+  generateProgression,
+  substitute,
+  jazzify,
+  type IdeaMood,
+} from "@/lib/ideas";
 
 /** コインで解放される楽器の閾値(累計コイン) */
 const UNLOCKS: { id: InstrumentId; coins: number }[] = [
@@ -107,6 +113,16 @@ type State = {
   ) => void;
   removeChord: (sectionId: string, chordId: string) => void;
   setEditing: (e: State["editing"]) => void;
+
+  // ===== アイデア生成 =====
+  ideaMood: IdeaMood;
+  setIdeaMood: (m: IdeaMood) => void;
+  /** 曲全体を新しいアイデアで作り直す(Aメロ+サビ) */
+  generateIdea: () => void;
+  /** セクションの進行を作り直す */
+  regenerateSection: (sectionId: string) => void;
+  /** セクションをアレンジ(代理コード/おしゃれ化) */
+  arrangeSection: (sectionId: string, kind: "sub" | "jazz") => void;
 
   play: () => Promise<void>;
   stop: () => void;
@@ -263,6 +279,59 @@ export const useSongStore = create<State>((set, get) => ({
       ),
     })),
   setEditing: (editing) => set({ editing }),
+
+  ideaMood: "明るい",
+  setIdeaMood: (ideaMood) => set({ ideaMood }),
+  generateIdea: () => {
+    const { ideaMood, song } = get();
+    set({
+      song: {
+        ...song,
+        sections: [
+          {
+            id: genId("sec"),
+            name: "Aメロ",
+            color: SECTION_COLORS[0],
+            chords: generateProgression(ideaMood, 4),
+          },
+          {
+            id: genId("sec"),
+            name: "サビ",
+            color: SECTION_COLORS[2],
+            chords: generateProgression(ideaMood, 4),
+          },
+        ],
+      },
+      editing: null,
+    });
+  },
+  regenerateSection: (sectionId) =>
+    set((s) => ({
+      song: mapSections(s.song, (sec) =>
+        sec.id === sectionId
+          ? {
+              ...sec,
+              chords: generateProgression(
+                s.ideaMood,
+                Math.max(2, sec.chords.length),
+              ),
+            }
+          : sec,
+      ),
+    })),
+  arrangeSection: (sectionId, kind) =>
+    set((s) => ({
+      song: mapSections(s.song, (sec) =>
+        sec.id === sectionId
+          ? {
+              ...sec,
+              chords: sec.chords.map((c) =>
+                kind === "sub" ? { ...substitute(c), id: c.id, beats: c.beats } : { ...jazzify(c), id: c.id, beats: c.beats },
+              ),
+            }
+          : sec,
+      ),
+    })),
 
   play: async () => {
     const { song, instrument, drums, countIn, mode } = get();

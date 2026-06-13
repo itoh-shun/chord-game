@@ -19,7 +19,11 @@ export function SectionLane({
   const applyPreset = useSongStore((s) => s.applyPreset);
   const addChord = useSongStore((s) => s.addChord);
   const setEditing = useSongStore((s) => s.setEditing);
+  const regenerateSection = useSongStore((s) => s.regenerateSection);
+  const arrangeSection = useSongStore((s) => s.arrangeSection);
   const st = SECTION_STYLE[section.color] ?? SECTION_STYLE.sky;
+  const tool =
+    "rounded-lg bg-white px-2 py-1 text-xs font-black text-stone-600 ring-1 ring-stone-200 active:scale-95";
 
   return (
     <section className={`rounded-2xl ${st.soft} p-2 ring-2 ${st.ring}`}>
@@ -50,6 +54,17 @@ export function SectionLane({
           className="rounded-lg bg-white px-2 py-1 text-xs font-black text-stone-400 ring-1 ring-stone-200"
         >
           ✕
+        </button>
+      </div>
+      <div className="mb-2 flex flex-wrap gap-1.5">
+        <button type="button" onClick={() => regenerateSection(section.id)} className={tool}>
+          💡 生成
+        </button>
+        <button type="button" onClick={() => arrangeSection(section.id, "sub")} className={tool}>
+          ↔ 代理コード
+        </button>
+        <button type="button" onClick={() => arrangeSection(section.id, "jazz")} className={tool}>
+          ✨ おしゃれ化
         </button>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-1">
