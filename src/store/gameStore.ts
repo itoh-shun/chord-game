@@ -3,7 +3,8 @@
 import { create } from "zustand";
 import type { GameSession } from "@/lib/game";
 import { createSession } from "@/lib/game";
-import type { BoardSlot, ChordCard } from "@/types";
+import { pickOne } from "@/lib/random";
+import type { BoardSlot, ChordCard, Section } from "@/types";
 
 /** 画面フェーズ: パック待機 → 開封演出 → 中身公開 → 作曲ボード */
 export type Phase = "pack" | "opening" | "revealed" | "playing";
@@ -27,6 +28,10 @@ type GameState = {
   placeCard: (cardId: string, slotId: string) => void;
   /** スロットのカードを手札に戻す */
   removeFromSlot: (slotId: string) => void;
+  /** 全スロットにセクションが合うカードをランダム配置する */
+  autoFill: () => void;
+  /** 全スロットを空にする */
+  clearBoard: () => void;
   setPlayingStep: (step: number) => void;
   setIsPlaying: (playing: boolean) => void;
 };
@@ -81,6 +86,27 @@ export const useGameStore = create<GameState>((set, get) => ({
     const board = session.board.map((slot) =>
       slot.id === slotId ? { ...slot, cardId: null } : slot,
     );
+    set({ session: { ...session, board } });
+  },
+
+  autoFill: () => {
+    const { session } = get();
+    if (!session) return;
+    // セクションごとに配られたカードをまとめる
+    const bySection: Record<Section, ChordCard[]> = { A: [], B: [], S: [], C: [] };
+    Object.values(session.dealtCards).forEach((c) => bySection[c.section].push(c));
+    const board = session.board.map((slot) => {
+      const pool = bySection[slot.section];
+      if (!pool.length) return slot;
+      return { ...slot, cardId: pickOne(pool).id };
+    });
+    set({ session: { ...session, board } });
+  },
+
+  clearBoard: () => {
+    const { session } = get();
+    if (!session) return;
+    const board = session.board.map((slot) => ({ ...slot, cardId: null }));
     set({ session: { ...session, board } });
   },
 

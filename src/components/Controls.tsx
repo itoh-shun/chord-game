@@ -7,6 +7,8 @@ export function Controls() {
   const reset = useGameStore((s) => s.reset);
   const drums = useGameStore((s) => s.drums);
   const toggleDrums = useGameStore((s) => s.toggleDrums);
+  const autoFill = useGameStore((s) => s.autoFill);
+  const clearBoard = useGameStore((s) => s.clearBoard);
   const { play, stop, isPlaying, canPlay, placedCount, totalSlots, instrumentLabel } =
     usePlayback();
 
@@ -30,6 +32,29 @@ export function Controls() {
           ▶ コード進行を再生
         </button>
       )}
+
+      <button
+        type="button"
+        onClick={() => {
+          stop();
+          autoFill();
+        }}
+        className="rounded-2xl bg-gradient-to-r from-pop-lime to-pop-cyan px-4 py-2.5 font-black text-white shadow ring-2 ring-white/60 transition active:scale-95"
+      >
+        🎲 おまかせ配置
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          stop();
+          clearBoard();
+        }}
+        disabled={placedCount === 0}
+        className="rounded-2xl bg-white px-4 py-2.5 font-black text-foreground/70 shadow ring-2 ring-foreground/15 transition active:scale-95 disabled:opacity-40"
+      >
+        🧹 クリア
+      </button>
 
       <button
         type="button"
