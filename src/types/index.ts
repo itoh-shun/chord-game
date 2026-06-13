@@ -43,6 +43,8 @@ export type SpecialCard = {
   id: string;
   title: string;
   description: string;
+  /** 具体的なやり方・例（初心者向け） */
+  hint: string;
   type: SpecialType;
 };
 

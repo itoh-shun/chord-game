@@ -219,3 +219,19 @@ export function transposeKey(keyName: string, semitones: number): string {
 }
 
 export const AVAILABLE_KEYS = ["C", "D", "E", "F", "G", "A", "B"] as const;
+
+/**
+ * 転調を「今回のキーで」具体的に表す。例: "C → C#" / "C(明るい) → Am(切ない)"
+ */
+export function describeKeyChange(
+  keyName: string,
+  semitones: number,
+): string | null {
+  if (semitones === 0) return null;
+  const to = transposeKey(keyName, semitones);
+  if (semitones === -3) {
+    // 平行調(同主短調側) ＝ 明るい → 切ない
+    return `${keyName}（明るい） → ${to}m（切ない）`;
+  }
+  return `${keyName} → ${to}`;
+}

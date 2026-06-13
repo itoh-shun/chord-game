@@ -19,11 +19,11 @@ export function PackScreen() {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col items-center justify-center px-6">
       <div className="mb-10 text-center">
-        <h1 className="text-3xl font-black tracking-wide text-brass-bright drop-shadow">
-          🍻 作曲酒場
+        <h1 className="bg-gradient-to-r from-pop-cyan via-pop-pink to-pop-purple bg-clip-text text-4xl font-black tracking-wide text-transparent drop-shadow-sm">
+          🎵 作曲酒場
         </h1>
-        <p className="mt-2 text-sm text-foreground/60">
-          パックを開けて、今日の作曲セットを引こう
+        <p className="mt-2 text-sm font-bold text-foreground/60">
+          パックを開けて、今日の作曲セットを引こう！
         </p>
       </div>
 
@@ -40,25 +40,25 @@ export function PackScreen() {
         className={`relative ${opening ? "" : "pack-idle"}`}
       >
         <div
-          className={`relative h-[380px] w-[260px] overflow-hidden rounded-3xl shadow-2xl ring-1 ring-white/20 ${
+          className={`holo relative h-[380px] w-[260px] overflow-hidden rounded-[28px] shadow-2xl ring-4 ring-white/70 ${
             opening ? "pack-burst" : "pack-shine"
           }`}
           style={{
             background:
-              "linear-gradient(160deg,#3a2516 0%,#5a3a22 35%,#2a1b10 70%,#1c130c 100%)",
+              "linear-gradient(150deg,#28d4ff 0%,#a855f7 38%,#ff2e93 70%,#ffd23f 100%)",
           }}
         >
           {/* 上部の封 */}
-          <div className="absolute inset-x-0 top-0 h-12 border-b-2 border-dashed border-brass/40 bg-black/30" />
+          <div className="absolute inset-x-0 top-0 h-12 border-b-[3px] border-dashed border-white/70 bg-white/15" />
           <div className="flex h-full flex-col items-center justify-center gap-4 px-5 text-center">
-            <span className="text-6xl drop-shadow-lg">🎼</span>
-            <span className="text-xl font-black tracking-widest text-brass-bright drop-shadow">
+            <span className="text-7xl drop-shadow-lg">🎵</span>
+            <span className="text-2xl font-black tracking-widest text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">
               作曲酒場
             </span>
-            <span className="text-[11px] tracking-[0.3em] text-brass/70">
+            <span className="text-[11px] font-bold tracking-[0.3em] text-white/90">
               CHORD PACK vol.1
             </span>
-            <span className="mt-2 rounded-full bg-brass/20 px-3 py-1 text-[10px] text-brass-bright ring-1 ring-brass/40">
+            <span className="mt-2 rounded-full bg-white/30 px-3 py-1 text-[10px] font-black text-white ring-1 ring-white/60">
               客 ・ お題 ・ 店長 ・ コード
             </span>
           </div>
@@ -66,7 +66,7 @@ export function PackScreen() {
       </button>
 
       {!opening && (
-        <p className="mt-8 animate-pulse text-sm font-bold text-brass-bright">
+        <p className="mt-8 animate-bounce text-base font-black text-accent drop-shadow-sm">
           タップして開封 ▲
         </p>
       )}

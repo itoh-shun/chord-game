@@ -2,13 +2,14 @@
 
 import { useGameStore, selectHand } from "@/store/gameStore";
 import { ChordCardFace } from "@/components/ChordCardView";
+import { describeKeyChange } from "@/lib/music";
 import type { DrawnThemes } from "@/types";
 
 const TYPE_LABEL: Record<string, string> = {
-  structure: "構成変更",
-  constraint: "コード制約",
-  modulation: "転調",
-  genre: "ジャンル変更",
+  structure: "こうせい変更",
+  constraint: "コードの工夫",
+  modulation: "転調(キー変え)",
+  genre: "ジャンル寄せ",
 };
 
 const THEME_META: { key: keyof DrawnThemes; label: string; suffix?: string }[] =
@@ -94,9 +95,21 @@ export function RevealScreen() {
               </span>
             </div>
             <p className="mt-2 text-lg font-black">{special.title}</p>
-            <p className="mt-1 text-sm italic text-stone-600">
-              「{special.description}」
-            </p>
+            <p className="mt-1 text-sm text-stone-600">{special.description}</p>
+            <div className="mt-2 rounded-xl bg-amber-100 px-3 py-2 text-sm text-stone-700">
+              <span className="font-black text-rose-600">やり方 👉 </span>
+              {special.hint}
+              {special.type === "modulation" &&
+                describeKeyChange(session.key, session.modulationSemitones) && (
+                  <span className="mt-1 block font-black text-indigo-600">
+                    今回は{" "}
+                    {describeKeyChange(
+                      session.key,
+                      session.modulationSemitones,
+                    )}
+                  </span>
+                )}
+            </div>
           </div>
         </div>
       </div>
@@ -122,14 +135,14 @@ export function RevealScreen() {
         <button
           type="button"
           onClick={reset}
-          className="rounded-xl bg-wood-light px-4 py-3 text-sm font-bold text-foreground shadow"
+          className="rounded-2xl bg-white px-4 py-3 text-sm font-black text-foreground shadow ring-2 ring-pop-purple/40"
         >
           別のパック
         </button>
         <button
           type="button"
           onClick={() => setPhase("playing")}
-          className="flex-1 rounded-xl bg-brass px-4 py-3 font-black text-wood-dark shadow-lg transition active:brightness-110"
+          className="flex-1 rounded-2xl bg-gradient-to-r from-pop-yellow via-pop-pink to-pop-purple px-4 py-3 font-black text-white shadow-lg ring-2 ring-white/60 transition active:scale-95"
         >
           🎼 この素材で作曲する →
         </button>

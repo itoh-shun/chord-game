@@ -14,7 +14,7 @@ export function Controls() {
         <button
           type="button"
           onClick={stop}
-          className="rounded-lg bg-accent px-5 py-2.5 font-bold text-white shadow transition hover:brightness-110"
+          className="rounded-2xl bg-accent px-5 py-2.5 font-black text-white shadow-lg ring-2 ring-white/60 transition active:scale-95"
         >
           ■ 停止
         </button>
@@ -23,7 +23,7 @@ export function Controls() {
           type="button"
           onClick={play}
           disabled={!canPlay}
-          className="rounded-lg bg-brass px-5 py-2.5 font-bold text-wood-dark shadow transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex-1 rounded-2xl bg-gradient-to-r from-pop-cyan via-pop-purple to-pop-pink px-5 py-2.5 font-black text-white shadow-lg ring-2 ring-white/60 transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:ring-0"
         >
           ▶ コード進行を再生
         </button>
@@ -35,13 +35,13 @@ export function Controls() {
           stop();
           reset();
         }}
-        className="rounded-lg bg-wood-light px-5 py-2.5 font-bold text-foreground shadow transition hover:brightness-110"
+        className="rounded-2xl bg-white px-4 py-2.5 font-black text-foreground shadow ring-2 ring-pop-yellow/70 transition active:scale-95"
       >
-        🎴 新しいパック
+        🎴 新パック
       </button>
 
-      <span className="text-sm text-brass/80">
-        配置: {placedCount} / {totalSlots}
+      <span className="text-sm font-bold text-brass/80">
+        {placedCount} / {totalSlots}
       </span>
     </div>
   );

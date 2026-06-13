@@ -1,17 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  /* 酒場(木製テーブル)風カラーパレット */
-  --background: #1c130c;
-  --foreground: #f3e9d8;
-  --wood-dark: #2a1b10;
-  --wood: #3a2516;
-  --wood-light: #5a3a22;
-  --brass: #d9a441;
-  --brass-bright: #f2c879;
-  --card: #f4ecd8;
-  --card-ink: #2a1b10;
-  --accent: #c0563b;
+  /* ポップ(キャンディ)カラーパレット */
+  --background: #fff0fb;
+  --foreground: #3a1d6e; /* 濃いめパープルの文字 */
+  --wood-dark: #ffffff; /* パネル面(白) */
+  --wood: #fdf2ff; /* 薄いパネル面 */
+  --wood-light: #ffd9f2; /* サブボタン/淡ピンク */
+  --brass: #7c3aed; /* サブ見出し(バイオレット) */
+  --brass-bright: #ff2e93; /* 見出し(ホットピンク) */
+  --card: #ffffff;
+  --card-ink: #3a1d6e;
+  --accent: #ff2e6e; /* ポップピンク(停止/強調) */
+  /* 追加ポップ色 */
+  --pop-yellow: #ffd23f;
+  --pop-cyan: #28d4ff;
+  --pop-lime: #6ee86b;
+  --pop-purple: #a855f7;
+  --pop-pink: #ff63ad;
+  --pop-orange: #ff8a3d;
 }
 
 @theme inline {
@@ -25,21 +32,24 @@
   --color-card: var(--card);
   --color-card-ink: var(--card-ink);
   --color-accent: var(--accent);
+  --color-pop-yellow: var(--pop-yellow);
+  --color-pop-cyan: var(--pop-cyan);
+  --color-pop-lime: var(--pop-lime);
+  --color-pop-purple: var(--pop-purple);
+  --color-pop-pink: var(--pop-pink);
+  --color-pop-orange: var(--pop-orange);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background:
-    radial-gradient(circle at 50% 0%, rgba(217, 164, 65, 0.08), transparent 60%),
-    repeating-linear-gradient(
-      90deg,
-      var(--wood-dark) 0px,
-      var(--wood-dark) 38px,
-      var(--wood) 38px,
-      var(--wood) 40px
-    ),
-    var(--background);
+    radial-gradient(circle at 12% 8%, rgba(40, 212, 255, 0.45), transparent 40%),
+    radial-gradient(circle at 88% 4%, rgba(255, 210, 63, 0.5), transparent 38%),
+    radial-gradient(circle at 80% 92%, rgba(110, 232, 107, 0.4), transparent 42%),
+    radial-gradient(circle at 10% 95%, rgba(168, 85, 247, 0.4), transparent 42%),
+    linear-gradient(160deg, #ffe6fb 0%, #e7ecff 45%, #e3fff4 100%);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans), "Hiragino Kaku Gothic ProN", "Yu Gothic",
     Meiryo, sans-serif;

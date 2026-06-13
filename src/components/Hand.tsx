@@ -8,9 +8,9 @@ export function Hand() {
   const hand = selectHand(session);
 
   return (
-    <section className="rounded-xl bg-wood-dark/80 p-4 shadow-lg ring-1 ring-brass/50">
-      <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-brass-bright">
-        手札 ({hand.length})
+    <section className="rounded-2xl bg-wood-dark/90 p-4 shadow-[0_6px_0_rgba(0,0,0,0.06)] ring-2 ring-pop-cyan/50">
+      <h2 className="mb-3 flex items-center gap-1.5 text-sm font-black tracking-wide text-brass">
+        🎴 手札 ({hand.length})
       </h2>
       {hand.length === 0 ? (
         <p className="text-sm text-foreground/60">

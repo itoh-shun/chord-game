@@ -66,19 +66,23 @@ export function GameBoard() {
     >
       <div className="mx-auto w-full max-w-[480px] space-y-4 p-3 pb-8">
         <header className="flex items-center justify-between">
-          <h1 className="text-xl font-black tracking-wide text-brass-bright drop-shadow">
-            🍻 作曲酒場
+          <h1 className="bg-gradient-to-r from-pop-cyan via-pop-pink to-pop-purple bg-clip-text text-2xl font-black tracking-wide text-transparent">
+            🎵 作曲酒場
           </h1>
-          <span className="text-xs text-brass/70">
-            Key = {session.key}
-            {session.modulationSemitones !== 0 && " ↗︎転調"}
+          <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-black text-brass ring-1 ring-pop-purple/30">
+            Key {session.key}
+            {session.modulationSemitones !== 0 && " ↗︎"}
           </span>
         </header>
 
         <div className="space-y-3">
           <CustomerCardView customer={session.customer} />
           <ThemeCardsView themes={session.themes} />
-          <SpecialCardView special={session.special} />
+          <SpecialCardView
+            special={session.special}
+            songKey={session.key}
+            modulationSemitones={session.modulationSemitones}
+          />
         </div>
 
         <section className="rounded-xl bg-wood-dark/60 p-3 shadow-inner ring-1 ring-brass/30">

@@ -1,20 +1,20 @@
 [
-  { "id": "sp_add2bars", "title": "サビ前に2小節追加", "description": "サビの直前に2小節の「タメ」を作れ。期待感を煽るんだ。", "type": "structure" },
-  { "id": "sp_cut4bars", "title": "4小節削除", "description": "どこか4小節をバッサリ切れ。冗長な部分はいらない。", "type": "structure" },
-  { "id": "sp_add_c", "title": "Cメロ追加", "description": "新しいCメロ(大サビ前の展開)を1つ足せ。", "type": "structure" },
-  { "id": "sp_add_chorus", "title": "サビ追加", "description": "サビをもう1回繰り返せ。耳に残してやろう。", "type": "structure" },
+  { "id": "sp_add2bars", "title": "サビ前に“タメ”を作る", "description": "サビの直前にもう1ブロック足して、期待感をふくらませよう。", "hint": "サビの手前にBメロ枠が1つ増えるよ。そこにカードを足してみて。", "type": "structure" },
+  { "id": "sp_cut4bars", "title": "1ブロック削ってスッキリ", "description": "間延びしている所をバッサリ削って、テンポよくしよう。", "hint": "構成の枠が1つ減るよ。短くまとめるのがコツ。", "type": "structure" },
+  { "id": "sp_add_c", "title": "大サビ前に“展開”を足す", "description": "最後のサビ前に、雰囲気の変わるCメロを1つ追加しよう。", "hint": "ラストサビの直前にCメロ枠が増えるよ。違う雰囲気のコードを置こう。", "type": "structure" },
+  { "id": "sp_add_chorus", "title": "サビをもう1回くり返す", "description": "サビを増やして、耳に残るようにしよう。", "hint": "サビ枠が1つ増えるよ。同じサビでもOK、変えてもOK。", "type": "structure" },
 
-  { "id": "sp_7th", "title": "7th必須", "description": "全コードに7thを足せ。少し大人びた響きにしろ。", "type": "constraint" },
-  { "id": "sp_sus4", "title": "sus4必須", "description": "どこかにsus4を入れろ。浮遊感を出すんだ。", "type": "constraint" },
-  { "id": "sp_borrowed", "title": "借用和音必須", "description": "同主調などからの借用和音を1つ入れろ。", "type": "constraint" },
-  { "id": "sp_onchord", "title": "オンコード必須", "description": "分数コード(オンコード)を最低1つ使え。ベースラインで魅せろ。", "type": "constraint" },
+  { "id": "sp_7th", "title": "おしゃれ7thを足す", "description": "コードに音を1つ足して、大人っぽい響きにしよう。", "hint": "例: C → Cmaj7、G → G7。少し切なく・おしゃれな響きになるよ。", "type": "constraint" },
+  { "id": "sp_sus4", "title": "ふわっと浮くsus4を入れる", "description": "どこかに“宙ぶらりん”な響きを1つ入れて、引っかかりを作ろう。", "hint": "例: G → Gsus4 → G。一瞬モヤッとして解決する感じが出るよ。", "type": "constraint" },
+  { "id": "sp_borrowed", "title": "意外な1コードを混ぜる", "description": "ふだん使わない“よそ者コード”を1つだけ混ぜて、ハッとさせよう。", "hint": "例: 明るいCの曲に B♭ や Fm を1つ。一瞬ドラマチックになるよ。", "type": "constraint" },
+  { "id": "sp_onchord", "title": "低音だけ変える(分数コード)", "description": "コードはそのまま、いちばん低い音だけ変えて、なめらかにつなごう。", "hint": "例: C/E（コードはC、ベースだけE）。低音が階段みたいに動くよ。", "type": "constraint" },
 
-  { "id": "sp_half_up", "title": "半音上転調", "description": "ラストサビで半音上げろ。鳥肌モノの盛り上げだ。", "type": "modulation" },
-  { "id": "sp_whole_up", "title": "全音上転調", "description": "全音上に転調しろ。一気に景色を変えるんだ。", "type": "modulation" },
-  { "id": "sp_relative", "title": "平行調転調", "description": "平行調へ転調しろ。表情をガラッと変えてみせろ。", "type": "modulation" },
+  { "id": "sp_half_up", "title": "ラストで半音アゲ⤴", "description": "最後のサビをほんの少しだけ高くして、グッと盛り上げよう。", "hint": "例: キーが C → C#。ほんの少し上がるだけで鳥肌モノ。", "type": "modulation" },
+  { "id": "sp_whole_up", "title": "ラストで全音アゲ⤴⤴", "description": "最後のサビを1音まるごと高くして、一気に景色を変えよう。", "hint": "例: キーが C → D。半音アゲより派手に上がるよ。", "type": "modulation" },
+  { "id": "sp_relative", "title": "明るい→切ない にチェンジ", "description": "同じ音のまま、明るい雰囲気から切ない雰囲気へ切り替えよう。", "hint": "例: 明るい C(メジャー) → 切ない Am(マイナー)。使う音は同じなのに表情が変わるよ。", "type": "modulation" },
 
-  { "id": "sp_anison", "title": "アニソン化", "description": "全力でアニソンっぽくしろ。疾走感と転調を恐れるな。", "type": "genre" },
-  { "id": "sp_citypop", "title": "シティポップ化", "description": "都会的でおしゃれに。テンションコード多めでいけ。", "type": "genre" },
-  { "id": "sp_jpop90s", "title": "90年代J-POP化", "description": "壮大な90年代J-POPの王道感を出せ。", "type": "genre" },
-  { "id": "sp_ballad", "title": "バラード化", "description": "テンポを落として泣けるバラードにしろ。", "type": "genre" }
+  { "id": "sp_anison", "title": "全力でアニソンっぽく", "description": "疾走感と勢いマシマシで、アニメ主題歌っぽく仕上げよう。", "hint": "速め・コード多め・転調も恐れずに。とにかく勢い重視で。", "type": "genre" },
+  { "id": "sp_citypop", "title": "おしゃれシティポップに", "description": "都会的でこなれた雰囲気に寄せよう。", "hint": "7thやsus4などのおしゃれコードを多めに。ゆったりめが合うよ。", "type": "genre" },
+  { "id": "sp_jpop90s", "title": "壮大な90年代J-POPに", "description": "ドラマ主題歌みたいな、スケールの大きい王道感を出そう。", "hint": "サビは王道進行＋ラストで転調。たっぷり盛り上げて。", "type": "genre" },
+  { "id": "sp_ballad", "title": "泣けるバラードに", "description": "テンポを落として、しっとり泣ける曲にしよう。", "hint": "ゆっくりめのテンポで、コードは少なめ・ていねいに。", "type": "genre" }
 ]

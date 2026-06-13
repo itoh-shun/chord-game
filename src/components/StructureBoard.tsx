@@ -45,12 +45,12 @@ function Slot({
     <div className="flex flex-col items-center gap-1">
       <div
         ref={setNodeRef}
-        className={`relative flex min-h-28 w-44 items-center justify-center rounded-lg border-2 border-dashed p-1 transition-colors ${
+        className={`relative flex min-h-28 w-44 items-center justify-center rounded-2xl border-[3px] border-dashed p-1 transition-colors ${
           isOver && acceptable
-            ? "border-brass-bright bg-brass/20"
+            ? "border-pop-lime bg-pop-lime/20"
             : isOver && !acceptable
               ? "border-accent bg-accent/20"
-              : "border-wood-light/60 bg-black/20"
+              : "border-pop-purple/40 bg-white/50"
         } ${isPlaying ? "playing-glow" : ""}`}
       >
         {card ? (
@@ -63,12 +63,12 @@ function Slot({
             <ChordCardFace card={card} songKey={slotKey} compact />
           </button>
         ) : (
-          <span className="text-3xl font-black text-wood-light/70">
+          <span className="text-3xl font-black text-pop-purple/40">
             {slot.section}
           </span>
         )}
       </div>
-      <span className="text-[11px] text-brass/80">
+      <span className="text-[11px] font-bold text-brass/80">
         {index + 1}. {SECTION_LABEL[slot.section]}
       </span>
     </div>
