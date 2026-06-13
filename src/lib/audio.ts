@@ -1,13 +1,11 @@
 // Tone.js を使ったコード進行＋ドラム再生エンジン (クライアント専用)
-// ジャンルに合わせて音色と奏法(ストローク/刻み/コンプ等)を切り替える。
+// ジャンルに合わせて音色(サンプリング音源/シンセ)と奏法を切り替える。
 
 import type * as ToneType from "tone";
 
 /** 再生する1ステップ(=1小節) */
 export type PlayStep = {
-  /** Tone.js用音名配列 例: ["C4","E4","G4"] */
   notes: string[];
-  /** 表示用コード名 */
   label: string;
 };
 
@@ -19,12 +17,24 @@ export type InstrumentId =
   | "synth"
   | "synthbright";
 
+/** triggerAttackRelease/releaseAll を持つ最小インターフェース */
+type Playable = {
+  triggerAttackRelease: (
+    notes: string | string[],
+    duration: number | string,
+    time?: number,
+  ) => unknown;
+  releaseAll?: () => unknown;
+};
+
 type Voice = {
-  /** リリース用 (停止時に音を消す) */
-  poly: ToneType.PolySynth;
-  /** 1小節分を奏法に沿って鳴らす */
+  node: Playable;
+  /** サンプル読み込み完了を待つ Promise (シンセは即時) */
+  ready?: Promise<void>;
   playBar: (notes: string[], time: number, bar: number, beat: number) => void;
 };
+
+const SAMPLE_BASE = (process.env.NEXT_PUBLIC_BASE_PATH ?? "") + "/samples/";
 
 let Tone: typeof ToneType | null = null;
 let kick: ToneType.MembraneSynth | null = null;
@@ -35,59 +45,105 @@ let isPlaying = false;
 
 /** 和音を弦のように少しずらして鳴らす(ストローク) */
 function strum(
-  poly: ToneType.PolySynth,
+  node: Playable,
   notes: string[],
   time: number,
   dur: number,
   up: boolean,
-  spread = 0.018,
+  spread = 0.02,
 ) {
   const order = up ? [...notes].reverse() : notes;
-  order.forEach((n, i) => poly.triggerAttackRelease(n, dur, time + i * spread));
+  order.forEach((n, i) =>
+    node.triggerAttackRelease(n, dur, time + i * spread),
+  );
+}
+
+function makeSampler(
+  t: typeof ToneType,
+  folder: string,
+  urls: Record<string, string>,
+): { sampler: ToneType.Sampler; ready: Promise<void> } {
+  let resolve!: () => void;
+  const ready = new Promise<void>((r) => (resolve = r));
+  const sampler = new t.Sampler({
+    urls,
+    baseUrl: `${SAMPLE_BASE}${folder}/`,
+    release: 1,
+    onload: () => resolve(),
+  });
+  return { sampler, ready };
 }
 
 function makeVoice(t: typeof ToneType, id: InstrumentId): Voice {
   switch (id) {
-    case "eguitar": {
-      // ロック: 歪んだサウンドを8分で刻む
-      const dist = new t.Distortion(0.45).toDestination();
-      const poly = new t.PolySynth(t.Synth, {
-        oscillator: { type: "sawtooth" },
-        envelope: { attack: 0.005, decay: 0.18, sustain: 0.4, release: 0.15 },
+    case "piano": {
+      const { sampler, ready } = makeSampler(t, "piano", {
+        C2: "C2.mp3",
+        "F#2": "Fs2.mp3",
+        C3: "C3.mp3",
+        "F#3": "Fs3.mp3",
+        C4: "C4.mp3",
+        "F#4": "Fs4.mp3",
+        C5: "C5.mp3",
       });
-      poly.connect(dist);
-      poly.volume.value = -16;
+      sampler.toDestination();
+      sampler.volume.value = -6;
       return {
-        poly,
+        node: sampler,
+        ready,
+        playBar: (notes, time, bar) =>
+          sampler.triggerAttackRelease(notes, bar * 0.95, time),
+      };
+    }
+    case "aguitar": {
+      const { sampler, ready } = makeSampler(t, "guitar-acoustic", {
+        A2: "A2.mp3",
+        C3: "C3.mp3",
+        "F#3": "Fs3.mp3",
+        C4: "C4.mp3",
+        "F#4": "Fs4.mp3",
+        C5: "C5.mp3",
+      });
+      sampler.toDestination();
+      sampler.volume.value = -6;
+      return {
+        node: sampler,
+        ready,
         playBar: (notes, time, _bar, beat) => {
+          // ダ・ダダ・ダ のストローク
+          strum(sampler, notes, time, beat * 0.9, false);
+          strum(sampler, notes, time + beat, beat * 0.5, false);
+          strum(sampler, notes, time + beat * 1.5, beat * 0.5, true);
+          strum(sampler, notes, time + beat * 2.5, beat * 0.5, true);
+          strum(sampler, notes, time + beat * 3, beat * 0.9, false);
+        },
+      };
+    }
+    case "eguitar": {
+      const dist = new t.Distortion(0.28).toDestination();
+      const { sampler, ready } = makeSampler(t, "guitar-electric", {
+        A2: "A2.mp3",
+        C3: "C3.mp3",
+        "F#3": "Fs3.mp3",
+        C4: "C4.mp3",
+        "F#4": "Fs4.mp3",
+        A4: "A4.mp3",
+      });
+      sampler.connect(dist);
+      sampler.volume.value = -8;
+      return {
+        node: sampler,
+        ready,
+        playBar: (notes, time, _bar, beat) => {
+          // 8分で刻む
           const eighth = beat / 2;
           for (let k = 0; k < 8; k++) {
-            strum(poly, notes, time + k * eighth, eighth * 0.6, false, 0.008);
+            strum(sampler, notes, time + k * eighth, eighth * 0.7, false, 0.01);
           }
         },
       };
     }
-    case "aguitar": {
-      // 弾き語り: アコギのストローク(ダウン/アップ)
-      const poly = new t.PolySynth(t.Synth, {
-        oscillator: { type: "triangle" },
-        envelope: { attack: 0.004, decay: 0.5, sustain: 0.15, release: 0.5 },
-      });
-      poly.volume.value = -10;
-      return {
-        poly,
-        playBar: (notes, time, _bar, beat) => {
-          // ダ・ダダ・ダ のよくあるストロークパターン
-          strum(poly, notes, time, beat * 0.9, false);
-          strum(poly, notes, time + beat, beat * 0.5, false);
-          strum(poly, notes, time + beat * 1.5, beat * 0.5, true);
-          strum(poly, notes, time + beat * 2.5, beat * 0.5, true);
-          strum(poly, notes, time + beat * 3, beat * 0.9, false);
-        },
-      };
-    }
     case "epiano": {
-      // シティポップ/ジャズ: エレピでコンプ(2拍ごとの刻み)
       const chorus = new t.Chorus(2.5, 1.8, 0.4).toDestination().start();
       const poly = new t.PolySynth(t.FMSynth, {
         harmonicity: 2,
@@ -100,7 +156,7 @@ function makeVoice(t: typeof ToneType, id: InstrumentId): Voice {
       poly.connect(chorus);
       poly.volume.value = -12;
       return {
-        poly,
+        node: poly,
         playBar: (notes, time, _bar, beat) => {
           poly.triggerAttackRelease(notes, beat * 1.4, time);
           poly.triggerAttackRelease(notes, beat * 1.4, time + beat * 2);
@@ -109,7 +165,6 @@ function makeVoice(t: typeof ToneType, id: InstrumentId): Voice {
     }
     case "synth":
     case "synthbright": {
-      // EDM/ボカロ/アニソン: 太いシンセを伸ばす(明るめはオクターブ重ね)
       const reverb = new t.Reverb(1.6).toDestination();
       const poly = new t.PolySynth(t.Synth, {
         oscillator: { type: id === "synthbright" ? "fatsawtooth" : "fatsquare" },
@@ -118,35 +173,25 @@ function makeVoice(t: typeof ToneType, id: InstrumentId): Voice {
       poly.connect(reverb);
       poly.volume.value = id === "synthbright" ? -18 : -16;
       return {
-        poly,
-        playBar: (notes, time, bar) => {
-          poly.triggerAttackRelease(notes, bar * 0.98, time);
-        },
+        node: poly,
+        playBar: (notes, time, bar) =>
+          poly.triggerAttackRelease(notes, bar * 0.98, time),
       };
     }
-    case "piano":
     default: {
-      // J-POP/デフォルト: やわらかいブロックコード
-      const poly = new t.PolySynth(t.Synth, {
-        oscillator: { type: "triangle" },
-        envelope: { attack: 0.01, decay: 0.4, sustain: 0.4, release: 0.8 },
-      });
-      poly.toDestination();
+      const poly = new t.PolySynth(t.Synth).toDestination();
       poly.volume.value = -10;
       return {
-        poly,
-        playBar: (notes, time, bar) => {
-          poly.triggerAttackRelease(notes, bar * 0.95, time);
-        },
+        node: poly,
+        playBar: (notes, time, bar) =>
+          poly.triggerAttackRelease(notes, bar * 0.95, time),
       };
     }
   }
 }
 
 async function ensureTone() {
-  if (!Tone) {
-    Tone = await import("tone");
-  }
+  if (!Tone) Tone = await import("tone");
   await Tone.start();
   if (!kick) {
     kick = new Tone.MembraneSynth({
@@ -179,22 +224,23 @@ function getVoice(t: typeof ToneType, id: InstrumentId): Voice {
   return voices[id]!;
 }
 
+/** 楽器(サンプル含む)を事前に読み込む。読み込み完了を待つ。 */
+export async function prepareInstrument(id: InstrumentId): Promise<void> {
+  const t = await ensureTone();
+  const voice = getVoice(t, id);
+  if (voice.ready) await voice.ready;
+}
+
 export type PlayHandlers = {
   onStep?: (index: number) => void;
   onEnd?: () => void;
 };
 
 export type PlayOptions = {
-  /** ドラムを鳴らすか */
   drums?: boolean;
-  /** 使用する楽器 */
   instrument?: InstrumentId;
 };
 
-/**
- * コード進行を再生する。1ステップ = 1小節 (4拍)。
- * すべて Transport タイムライン上にスケジュールするので、stop で確実に止まる。
- */
 export async function playProgression(
   steps: PlayStep[],
   bpm: number,
@@ -205,13 +251,14 @@ export async function playProgression(
   const t = await ensureTone();
   stopProgression();
 
+  const voice = getVoice(t, options.instrument ?? "piano");
+  if (voice.ready) await voice.ready;
+
   t.Transport.bpm.value = bpm;
   const beatSeconds = 60 / bpm;
   const barSeconds = beatSeconds * 4;
-  const voice = getVoice(t, options.instrument ?? "piano");
   isPlaying = true;
 
-  // コード(1小節ごと、ジャンルの奏法で) + ハイライト
   steps.forEach((step, i) => {
     t.Transport.schedule((time) => {
       if (step.notes.length > 0) {
@@ -221,7 +268,6 @@ export async function playProgression(
     }, i * barSeconds);
   });
 
-  // 簡単なドラム (キック=1,3拍 / スネア=2,4拍 / ハイハット=8分)
   if (options.drums !== false) {
     const totalBeats = steps.length * 4;
     for (let beat = 0; beat < totalBeats; beat++) {
@@ -235,7 +281,6 @@ export async function playProgression(
     }
   }
 
-  // 終了
   t.Transport.schedule((time) => {
     t.Draw.schedule(() => {
       isPlaying = false;
@@ -246,12 +291,11 @@ export async function playProgression(
   t.Transport.start();
 }
 
-/** 再生を停止する */
 export function stopProgression(): void {
   if (!Tone) return;
   Tone.Transport.stop();
   Tone.Transport.cancel(0);
-  Object.values(voices).forEach((v) => v?.poly.releaseAll());
+  Object.values(voices).forEach((v) => v?.node.releaseAll?.());
   isPlaying = false;
 }
 
@@ -264,7 +308,6 @@ export function pickInstrument(
   genre: string,
   special?: { id: string; type: string },
 ): { id: InstrumentId; label: string } {
-  // 店長の「ジャンル寄せ」カードがあれば音色も寄せる
   if (special && special.type === "genre") {
     switch (special.id) {
       case "sp_ballad":
@@ -281,13 +324,11 @@ export function pickInstrument(
     case "ロック":
       return { id: "eguitar", label: "エレキギター" };
     case "シティポップ":
-      return { id: "epiano", label: "エレピ" };
     case "ジャズ":
       return { id: "epiano", label: "エレピ" };
     case "EDM":
       return { id: "synth", label: "シンセ" };
     case "ボカロ":
-      return { id: "synthbright", label: "ブライトシンセ" };
     case "アニソン":
       return { id: "synthbright", label: "ブライトシンセ" };
     case "J-POP":

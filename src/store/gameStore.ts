@@ -17,7 +17,10 @@ type GameState = {
   isPlaying: boolean;
   /** ドラムを鳴らすか */
   drums: boolean;
+  /** サンプル音源の読み込み中か */
+  audioLoading: boolean;
 
+  setAudioLoading: (v: boolean) => void;
   toggleDrums: () => void;
   setPhase: (phase: Phase) => void;
   /** パックを開封して新しいセッションを生成 */
@@ -42,7 +45,9 @@ export const useGameStore = create<GameState>((set, get) => ({
   playingStep: -1,
   isPlaying: false,
   drums: true,
+  audioLoading: false,
 
+  setAudioLoading: (v) => set({ audioLoading: v }),
   toggleDrums: () => set((s) => ({ drums: !s.drums })),
   setPhase: (phase) => set({ phase }),
   openPack: () =>

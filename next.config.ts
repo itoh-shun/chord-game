@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
   basePath: isPages ? `/${repo}` : "",
   assetPrefix: isPages ? `/${repo}/` : "",
   trailingSlash: true,
+  // public/ 配下(サンプル音源など)を参照するためのベースパス
+  env: { NEXT_PUBLIC_BASE_PATH: isPages ? `/${repo}` : "" },
 };
 
 export default nextConfig;

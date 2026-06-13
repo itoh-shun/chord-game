@@ -220,6 +220,15 @@ export function transposeKey(keyName: string, semitones: number): string {
 
 export const AVAILABLE_KEYS = ["C", "D", "E", "F", "G", "A", "B"] as const;
 
+/** "C4" などの音名を MIDI ノート番号(C4=60)に変換する */
+export function noteNameToMidi(name: string): number {
+  const m = name.match(/^([A-G]#?)(-?\d+)$/);
+  if (!m) return 60;
+  const pc = NOTE_NAMES.indexOf(m[1] as (typeof NOTE_NAMES)[number]);
+  const octave = parseInt(m[2], 10);
+  return (octave + 1) * 12 + (pc < 0 ? 0 : pc);
+}
+
 /**
  * 転調を「今回のキーで」具体的に表す。例: "C → C#" / "C(明るい) → Am(切ない)"
  */

@@ -5,44 +5,13 @@ import { useGameStore, selectHand } from "@/store/gameStore";
 import {
   playProgression,
   stopProgression,
+  prepareInstrument,
   pickInstrument,
-  type PlayStep,
 } from "@/lib/audio";
-import { romanToNotes, romanToChordName, transposeKey } from "@/lib/music";
-import type { GameSession } from "@/lib/game";
+import { downloadMidi } from "@/lib/midi";
+import { buildSteps } from "@/lib/buildSteps";
 
-export type BuiStep = PlayStep & { slotIndex: number };
-
-/** ボード状態から再生ステップ(=小節ごと)を構築する */
-export function buildSteps(session: GameSession): BuiStep[] {
-  const { board, dealtCards, key, modulationSemitones } = session;
-  const lastChorusIndex = board.map((s) => s.section).lastIndexOf("S");
-
-  const steps: BuiStep[] = [];
-  board.forEach((slot, slotIndex) => {
-    if (!slot.cardId) return;
-    const card = dealtCards[slot.cardId];
-    if (!card) return;
-    // 最後のサビ以降は転調キーを使う
-    const useKey =
-      modulationSemitones !== 0 && slotIndex >= lastChorusIndex
-        ? transposeKey(key, modulationSemitones)
-        : key;
-    // ブロックの小節数を満たすよう、コード進行を繰り返して並べる
-    const progLen = card.progression.length || 4;
-    const repeats = Math.max(1, Math.round(slot.bars / progLen));
-    for (let r = 0; r < repeats; r++) {
-      card.progression.forEach((roman) => {
-        steps.push({
-          notes: romanToNotes(roman, useKey),
-          label: romanToChordName(roman, useKey),
-          slotIndex,
-        });
-      });
-    }
-  });
-  return steps;
-}
+export { buildSteps };
 
 export function usePlayback() {
   const session = useGameStore((s) => s.session);
@@ -50,6 +19,8 @@ export function usePlayback() {
   const drums = useGameStore((s) => s.drums);
   const setIsPlaying = useGameStore((s) => s.setIsPlaying);
   const setPlayingStep = useGameStore((s) => s.setPlayingStep);
+  const audioLoading = useGameStore((s) => s.audioLoading);
+  const setAudioLoading = useGameStore((s) => s.setAudioLoading);
 
   const instrument = session
     ? pickInstrument(session.themes.genre.value, session.special)
@@ -62,6 +33,14 @@ export function usePlayback() {
     const bpm = Number(session.themes.tempo.value) || 120;
     const inst = pickInstrument(session.themes.genre.value, session.special);
 
+    // サンプル音源の読み込みを待つ(初回のみ時間がかかる)
+    setAudioLoading(true);
+    try {
+      await prepareInstrument(inst.id);
+    } finally {
+      setAudioLoading(false);
+    }
+
     setIsPlaying(true);
     await playProgression(
       steps,
@@ -72,12 +51,16 @@ export function usePlayback() {
       },
       { drums, instrument: inst.id },
     );
-  }, [session, drums, setIsPlaying, setPlayingStep]);
+  }, [session, drums, setIsPlaying, setPlayingStep, setAudioLoading]);
 
   const stop = useCallback(() => {
     stopProgression();
     setIsPlaying(false);
   }, [setIsPlaying]);
+
+  const exportMidi = useCallback(() => {
+    if (session) downloadMidi(session);
+  }, [session]);
 
   // 配置済みスロットが1つでもあれば再生可能
   const canPlay = !!session && session.board.some((s) => s.cardId);
@@ -90,7 +73,9 @@ export function usePlayback() {
   return {
     play,
     stop,
+    exportMidi,
     isPlaying,
+    audioLoading,
     canPlay,
     placedCount,
     totalSlots,

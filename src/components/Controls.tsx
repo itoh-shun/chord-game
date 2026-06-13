@@ -9,8 +9,17 @@ export function Controls() {
   const toggleDrums = useGameStore((s) => s.toggleDrums);
   const autoFill = useGameStore((s) => s.autoFill);
   const clearBoard = useGameStore((s) => s.clearBoard);
-  const { play, stop, isPlaying, canPlay, placedCount, totalSlots, instrumentLabel } =
-    usePlayback();
+  const {
+    play,
+    stop,
+    exportMidi,
+    isPlaying,
+    audioLoading,
+    canPlay,
+    placedCount,
+    totalSlots,
+    instrumentLabel,
+  } = usePlayback();
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -26,12 +35,22 @@ export function Controls() {
         <button
           type="button"
           onClick={play}
-          disabled={!canPlay}
+          disabled={!canPlay || audioLoading}
           className="flex-1 rounded-2xl bg-gradient-to-r from-pop-cyan via-pop-purple to-pop-pink px-5 py-2.5 font-black text-white shadow-lg ring-2 ring-white/60 transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:ring-0"
         >
-          ▶ コード進行を再生
+          {audioLoading ? "🎵 音源読み込み中…" : "▶ コード進行を再生"}
         </button>
       )}
+
+      <button
+        type="button"
+        onClick={exportMidi}
+        disabled={placedCount === 0}
+        title="MIDIファイルを書き出す"
+        className="rounded-2xl bg-white px-4 py-2.5 font-black text-foreground shadow ring-2 ring-pop-purple/50 transition active:scale-95 disabled:opacity-40"
+      >
+        🎼 MIDI
+      </button>
 
       <button
         type="button"
