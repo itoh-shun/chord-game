@@ -3,7 +3,8 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import type { ChordCard } from "@/types";
-import { romanToChordName, romanToNotes } from "@/lib/music";
+import { romanToChordName, romanToNotes, transposeKey } from "@/lib/music";
+import { useGameStore } from "@/store/gameStore";
 import { ChordDiagram } from "@/components/ChordDiagram";
 
 const SECTION_LABEL: Record<ChordCard["section"], string> = {
@@ -37,8 +38,10 @@ function cardNumber(id: string): string {
 }
 
 function tagline(card: ChordCard): string {
-  const named = NAMED_PROGRESSIONS[card.progression.join(" ")];
-  if (named) return named;
+  // 先頭4小節のパターンで通称を判定
+  const named = NAMED_PROGRESSIONS[card.progression.slice(0, 4).join(" ")];
+  if (named) return `${named}${card.bars <= 3 ? "(展開)" : ""}`;
+  if (card.bars <= 3) return "短い展開フレーズ";
   return card.keyType === "minor" ? "切なめの進行" : "明るめの進行";
 }
 
@@ -86,6 +89,9 @@ export function ChordCardFace({
   songKey: string;
   compact?: boolean;
 }) {
+  const capo = useGameStore((s) => s.capo);
+  // カポを付けると押さえるコード(フォーム)は capo 分だけ低いキーになる
+  const shapeKey = capo > 0 ? transposeKey(songKey, -capo) : songKey;
   return (
     <div className="overflow-hidden rounded-lg bg-card text-card-ink shadow-md ring-1 ring-black/20">
       {/* 色タブ + 番号 */}
@@ -100,15 +106,22 @@ export function ChordCardFace({
         </span>
       </div>
       <div className={compact ? "p-1.5" : "p-2"}>
-        <div className="mb-1 flex items-center justify-between">
+        <div className="mb-1 flex items-center justify-between gap-1">
           <span className="truncate text-[10px] font-bold text-stone-500">
             {tagline(card)}
           </span>
-          <span className="ml-1 shrink-0 rounded bg-stone-800 px-1 text-[9px] font-black text-white">
-            Key={songKey}
+          <span className="flex shrink-0 items-center gap-1">
+            {capo > 0 && (
+              <span className="rounded bg-orange-500 px-1 text-[9px] font-black text-white">
+                Capo{capo}
+              </span>
+            )}
+            <span className="rounded bg-stone-800 px-1 text-[9px] font-black text-white">
+              Key={songKey}
+            </span>
           </span>
         </div>
-        <ChordContent card={card} songKey={songKey} size={compact ? 0.92 : 1} />
+        <ChordContent card={card} songKey={shapeKey} size={compact ? 0.92 : 1} />
       </div>
     </div>
   );

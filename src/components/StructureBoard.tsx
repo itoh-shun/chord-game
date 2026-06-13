@@ -66,13 +66,13 @@ function Slot({
           <div className="flex flex-col items-center text-pop-purple/45">
             <span className="text-xl font-black">{slot.label}</span>
             <span className="mt-0.5 text-[11px] font-bold">
-              {slot.bars}小節
+              目安{slot.bars}小節
             </span>
           </div>
         )}
       </div>
       <span className="text-[11px] font-bold text-brass/80">
-        {index + 1}. {slot.label}・{slot.bars}小節
+        {index + 1}. {slot.label}・{card ? `${card.bars}小節` : `目安${slot.bars}`}
       </span>
     </div>
   );

@@ -117,8 +117,8 @@ function applySpecial(
 
   switch (special.id) {
     case "sp_add2bars":
-      // サビ本体の前に「Bメロ」枠(4小節)を挿入してタメを作る
-      if (firstS >= 0) next.splice(firstS, 0, slot("B", "Bメロ", 4));
+      // サビ本体の前に「Bメロ」枠(8小節)を挿入してタメを作る
+      if (firstS >= 0) next.splice(firstS, 0, slot("B", "Bメロ", 8));
       break;
     case "sp_cut4bars": {
       // サビ以外の1ブロックを削る
@@ -127,9 +127,9 @@ function applySpecial(
       break;
     }
     case "sp_add_c":
-      // 最後のサビ前にCメロ(4小節)を追加
-      if (lastS >= 0) next.splice(lastS, 0, slot("C", "Cメロ", 4));
-      else next.push(slot("C", "Cメロ", 4));
+      // 最後のサビ前にCメロ(8小節)を追加
+      if (lastS >= 0) next.splice(lastS, 0, slot("C", "Cメロ", 8));
+      else next.push(slot("C", "Cメロ", 8));
       break;
     case "sp_add_chorus":
       // 大サビ(8小節)を末尾に追加

@@ -4,7 +4,11 @@ import { create } from "zustand";
 import type { GameSession } from "@/lib/game";
 import { createSession } from "@/lib/game";
 import { pickOne } from "@/lib/random";
+import { transposeKey } from "@/lib/music";
 import type { BoardSlot, ChordCard, Section } from "@/types";
+
+/** 押さえやすい(開放弦が使える)キー */
+const EASY_SHAPE_KEYS = ["C", "G", "D", "A", "E"];
 
 /** 画面フェーズ: パック待機 → 開封演出 → 中身公開 → 作曲ボード */
 export type Phase = "pack" | "opening" | "revealed" | "playing";
@@ -19,9 +23,14 @@ type GameState = {
   drums: boolean;
   /** サンプル音源の読み込み中か */
   audioLoading: boolean;
+  /** カポの位置(フレット, 0=なし)。表示する押さえコードを簡単にする */
+  capo: number;
 
   setAudioLoading: (v: boolean) => void;
   toggleDrums: () => void;
+  setCapo: (n: number) => void;
+  /** 押さえやすいキーになるカポ位置を自動で選ぶ */
+  autoCapo: () => void;
   setPhase: (phase: Phase) => void;
   /** パックを開封して新しいセッションを生成 */
   openPack: () => void;
@@ -46,9 +55,22 @@ export const useGameStore = create<GameState>((set, get) => ({
   isPlaying: false,
   drums: true,
   audioLoading: false,
+  capo: 0,
 
   setAudioLoading: (v) => set({ audioLoading: v }),
   toggleDrums: () => set((s) => ({ drums: !s.drums })),
+  setCapo: (n) => set({ capo: Math.max(0, Math.min(7, n)) }),
+  autoCapo: () => {
+    const { session } = get();
+    if (!session) return;
+    for (let c = 0; c <= 5; c++) {
+      if (EASY_SHAPE_KEYS.includes(transposeKey(session.key, -c))) {
+        set({ capo: c });
+        return;
+      }
+    }
+    set({ capo: 0 });
+  },
   setPhase: (phase) => set({ phase }),
   openPack: () =>
     set({

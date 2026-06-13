@@ -21,18 +21,14 @@ export function buildSteps(session: GameSession): BuiStep[] {
       modulationSemitones !== 0 && slotIndex >= lastChorusIndex
         ? transposeKey(key, modulationSemitones)
         : key;
-    // ブロックの小節数を満たすよう、コード進行を繰り返して並べる
-    const progLen = card.progression.length || 4;
-    const repeats = Math.max(1, Math.round(slot.bars / progLen));
-    for (let r = 0; r < repeats; r++) {
-      card.progression.forEach((roman) => {
-        steps.push({
-          notes: romanToNotes(roman, useKey),
-          label: romanToChordName(roman, useKey),
-          slotIndex,
-        });
+    // カードの小節数(=進行の長さ)ぶんそのまま鳴らす
+    card.progression.forEach((roman) => {
+      steps.push({
+        notes: romanToNotes(roman, useKey),
+        label: romanToChordName(roman, useKey),
+        slotIndex,
       });
-    }
+    });
   });
   return steps;
 }

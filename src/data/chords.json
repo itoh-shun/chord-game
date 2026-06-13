@@ -131,132 +131,172 @@
   },
   {
     "id": "chord_a_11",
-    "name": "Aメロ I - IV - V - vi",
+    "name": "Aメロ I - V - vi - IV - I - iii - IV - V",
     "section": "A",
     "keyType": "major",
-    "bars": 4,
+    "bars": 8,
     "progression": [
       "I",
-      "IV",
       "V",
-      "vi"
+      "vi",
+      "IV",
+      "I",
+      "iii",
+      "IV",
+      "V"
     ]
   },
   {
     "id": "chord_a_12",
-    "name": "Aメロ iii - vi - ii - V",
+    "name": "Aメロ I - vi - IV - V - I - IV - I - V",
     "section": "A",
-    "keyType": "minor",
-    "bars": 4,
+    "keyType": "major",
+    "bars": 8,
     "progression": [
-      "iii",
+      "I",
       "vi",
-      "ii",
+      "IV",
+      "V",
+      "I",
+      "IV",
+      "I",
       "V"
     ]
   },
   {
     "id": "chord_a_13",
-    "name": "Aメロ I - vi - ii - V",
+    "name": "Aメロ vi - IV - I - V - vi - V - IV - V",
     "section": "A",
-    "keyType": "major",
-    "bars": 4,
+    "keyType": "minor",
+    "bars": 8,
     "progression": [
-      "I",
       "vi",
-      "ii",
+      "IV",
+      "I",
+      "V",
+      "vi",
+      "V",
+      "IV",
       "V"
     ]
   },
   {
     "id": "chord_a_14",
-    "name": "Aメロ IV - V - I - vi",
+    "name": "Aメロ I - iii - IV - V - I - V - vi - iii",
     "section": "A",
     "keyType": "major",
-    "bars": 4,
+    "bars": 8,
     "progression": [
+      "I",
+      "iii",
       "IV",
+      "V",
+      "I",
+      "V",
+      "vi",
+      "iii"
+    ]
+  },
+  {
+    "id": "chord_a_15",
+    "name": "Aメロ I - IV - I - V - ii - V - I - vi",
+    "section": "A",
+    "keyType": "major",
+    "bars": 8,
+    "progression": [
+      "I",
+      "IV",
+      "I",
+      "V",
+      "ii",
       "V",
       "I",
       "vi"
     ]
   },
   {
-    "id": "chord_a_15",
-    "name": "Aメロ vi - I - IV - V",
+    "id": "chord_a_16",
+    "name": "Aメロ vi - V - IV - V - I - I - IV - IV",
     "section": "A",
     "keyType": "minor",
-    "bars": 4,
+    "bars": 8,
     "progression": [
       "vi",
-      "I",
-      "IV",
-      "V"
-    ]
-  },
-  {
-    "id": "chord_a_16",
-    "name": "Aメロ I - V - IV - IV",
-    "section": "A",
-    "keyType": "major",
-    "bars": 4,
-    "progression": [
-      "I",
       "V",
+      "IV",
+      "V",
+      "I",
+      "I",
       "IV",
       "IV"
     ]
   },
   {
     "id": "chord_a_17",
-    "name": "Aメロ ii - iii - IV - V",
+    "name": "Aメロ I - V - vi - iii - vi - iii - IV - I",
     "section": "A",
-    "keyType": "minor",
-    "bars": 4,
+    "keyType": "major",
+    "bars": 8,
     "progression": [
-      "ii",
+      "I",
+      "V",
+      "vi",
+      "iii",
+      "vi",
       "iii",
       "IV",
-      "V"
+      "I"
     ]
   },
   {
     "id": "chord_a_18",
-    "name": "Aメロ I - IV - vi - V",
+    "name": "Aメロ ii - V - I - vi - I - V - vi - IV",
     "section": "A",
-    "keyType": "major",
-    "bars": 4,
+    "keyType": "minor",
+    "bars": 8,
     "progression": [
+      "ii",
+      "V",
       "I",
-      "IV",
       "vi",
-      "V"
+      "I",
+      "V",
+      "vi",
+      "IV"
     ]
   },
   {
     "id": "chord_a_19",
-    "name": "Aメロ vi - IV - ii - V",
+    "name": "Aメロ I - I - IV - IV - I - vi - IV - V",
     "section": "A",
-    "keyType": "minor",
-    "bars": 4,
+    "keyType": "major",
+    "bars": 8,
     "progression": [
+      "I",
+      "I",
+      "IV",
+      "IV",
+      "I",
       "vi",
       "IV",
-      "ii",
       "V"
     ]
   },
   {
     "id": "chord_a_20",
-    "name": "Aメロ I - V - iii - vi",
+    "name": "Aメロ vi - iii - IV - I - vi - IV - I - V",
     "section": "A",
-    "keyType": "major",
-    "bars": 4,
+    "keyType": "minor",
+    "bars": 8,
     "progression": [
-      "I",
-      "V",
+      "vi",
       "iii",
-      "vi"
+      "IV",
+      "I",
+      "vi",
+      "IV",
+      "I",
+      "V"
     ]
   },
   {
@@ -326,7 +366,7 @@
   },
   {
     "id": "chord_b_06",
-    "name": "Bメロ vi - V - IV - V",
+    "name": "Bメロ vi - V - IV - III",
     "section": "B",
     "keyType": "minor",
     "bars": 4,
@@ -334,7 +374,7 @@
       "vi",
       "V",
       "IV",
-      "V"
+      "III"
     ]
   },
   {
@@ -365,63 +405,178 @@
   },
   {
     "id": "chord_b_09",
-    "name": "Bメロ vi - ii - V - V",
+    "name": "Bメロ ii - V",
     "section": "B",
     "keyType": "minor",
-    "bars": 4,
+    "bars": 2,
     "progression": [
-      "vi",
       "ii",
-      "V",
       "V"
     ]
   },
   {
     "id": "chord_b_10",
-    "name": "Bメロ IV - I - ii - V",
+    "name": "Bメロ IV - V",
     "section": "B",
     "keyType": "major",
-    "bars": 4,
+    "bars": 2,
     "progression": [
       "IV",
-      "I",
-      "ii",
       "V"
     ]
   },
   {
     "id": "chord_b_11",
-    "name": "Bメロ iii - vi - IV - V",
+    "name": "Bメロ vi - V",
     "section": "B",
     "keyType": "minor",
-    "bars": 4,
+    "bars": 2,
     "progression": [
-      "iii",
       "vi",
-      "IV",
       "V"
     ]
   },
   {
     "id": "chord_b_12",
-    "name": "Bメロ ii - V - vi - V",
+    "name": "Bメロ IV - III",
     "section": "B",
-    "keyType": "minor",
-    "bars": 4,
+    "keyType": "major",
+    "bars": 2,
     "progression": [
-      "ii",
-      "V",
-      "vi",
-      "V"
+      "IV",
+      "III"
     ]
   },
   {
     "id": "chord_b_13",
-    "name": "Bメロ IV - V - I - vi",
+    "name": "Bメロ vi - IV - I - V - IV - V - vi - vi",
+    "section": "B",
+    "keyType": "minor",
+    "bars": 8,
+    "progression": [
+      "vi",
+      "IV",
+      "I",
+      "V",
+      "IV",
+      "V",
+      "vi",
+      "vi"
+    ]
+  },
+  {
+    "id": "chord_b_14",
+    "name": "Bメロ ii - V - I - I - ii - V - iii - vi",
+    "section": "B",
+    "keyType": "minor",
+    "bars": 8,
+    "progression": [
+      "ii",
+      "V",
+      "I",
+      "I",
+      "ii",
+      "V",
+      "iii",
+      "vi"
+    ]
+  },
+  {
+    "id": "chord_b_15",
+    "name": "Bメロ IV - V - vi - vi - IV - iii - ii - V",
     "section": "B",
     "keyType": "major",
-    "bars": 4,
+    "bars": 8,
     "progression": [
+      "IV",
+      "V",
+      "vi",
+      "vi",
+      "IV",
+      "iii",
+      "ii",
+      "V"
+    ]
+  },
+  {
+    "id": "chord_s_01",
+    "name": "サビ IV - V - iii - vi - I - IV - V - I",
+    "section": "S",
+    "keyType": "major",
+    "bars": 8,
+    "progression": [
+      "IV",
+      "V",
+      "iii",
+      "vi",
+      "I",
+      "IV",
+      "V",
+      "I"
+    ]
+  },
+  {
+    "id": "chord_s_02",
+    "name": "サビ IV - I - V - vi - IV - V - vi - I",
+    "section": "S",
+    "keyType": "major",
+    "bars": 8,
+    "progression": [
+      "IV",
+      "I",
+      "V",
+      "vi",
+      "IV",
+      "V",
+      "vi",
+      "I"
+    ]
+  },
+  {
+    "id": "chord_s_03",
+    "name": "サビ I - V - vi - IV - I - V - IV - V",
+    "section": "S",
+    "keyType": "major",
+    "bars": 8,
+    "progression": [
+      "I",
+      "V",
+      "vi",
+      "IV",
+      "I",
+      "V",
+      "IV",
+      "V"
+    ]
+  },
+  {
+    "id": "chord_s_04",
+    "name": "サビ vi - IV - I - V - vi - V - IV - I",
+    "section": "S",
+    "keyType": "minor",
+    "bars": 8,
+    "progression": [
+      "vi",
+      "IV",
+      "I",
+      "V",
+      "vi",
+      "V",
+      "IV",
+      "I"
+    ]
+  },
+  {
+    "id": "chord_s_05",
+    "name": "サビ I - IV - V - I - IV - V - I - vi",
+    "section": "S",
+    "keyType": "major",
+    "bars": 8,
+    "progression": [
+      "I",
+      "IV",
+      "V",
+      "I",
       "IV",
       "V",
       "I",
@@ -429,33 +584,126 @@
     ]
   },
   {
-    "id": "chord_b_14",
-    "name": "Bメロ vi - V - ii - V",
-    "section": "B",
+    "id": "chord_s_06",
+    "name": "サビ IV - V - vi - I - I - vi - IV - V",
+    "section": "S",
+    "keyType": "major",
+    "bars": 8,
+    "progression": [
+      "IV",
+      "V",
+      "vi",
+      "I",
+      "I",
+      "vi",
+      "IV",
+      "V"
+    ]
+  },
+  {
+    "id": "chord_s_07",
+    "name": "サビ I - V - IV - V - IV - V - iii - vi",
+    "section": "S",
+    "keyType": "major",
+    "bars": 8,
+    "progression": [
+      "I",
+      "V",
+      "IV",
+      "V",
+      "IV",
+      "V",
+      "iii",
+      "vi"
+    ]
+  },
+  {
+    "id": "chord_s_08",
+    "name": "サビ vi - V - IV - I - IV - I - V - vi",
+    "section": "S",
     "keyType": "minor",
-    "bars": 4,
+    "bars": 8,
     "progression": [
       "vi",
       "V",
-      "ii",
-      "V"
+      "IV",
+      "I",
+      "IV",
+      "I",
+      "V",
+      "vi"
     ]
   },
   {
-    "id": "chord_b_15",
-    "name": "Bメロ IV - iii - vi - V",
-    "section": "B",
+    "id": "chord_s_09",
+    "name": "サビ IV - V - I - vi - I - V - vi - IV",
+    "section": "S",
     "keyType": "major",
-    "bars": 4,
+    "bars": 8,
     "progression": [
       "IV",
-      "iii",
+      "V",
+      "I",
       "vi",
+      "I",
+      "V",
+      "vi",
+      "IV"
+    ]
+  },
+  {
+    "id": "chord_s_10",
+    "name": "サビ I - vi - IV - V - vi - IV - I - V",
+    "section": "S",
+    "keyType": "major",
+    "bars": 8,
+    "progression": [
+      "I",
+      "vi",
+      "IV",
+      "V",
+      "vi",
+      "IV",
+      "I",
       "V"
     ]
   },
   {
-    "id": "chord_s_01",
+    "id": "chord_s_11",
+    "name": "サビ IV - V - iii - vi - I - IV - V - I",
+    "section": "S",
+    "keyType": "major",
+    "bars": 8,
+    "progression": [
+      "IV",
+      "V",
+      "iii",
+      "vi",
+      "I",
+      "IV",
+      "V",
+      "I"
+    ]
+  },
+  {
+    "id": "chord_s_12",
+    "name": "サビ IV - I - V - vi - IV - V - vi - I",
+    "section": "S",
+    "keyType": "major",
+    "bars": 8,
+    "progression": [
+      "IV",
+      "I",
+      "V",
+      "vi",
+      "IV",
+      "V",
+      "vi",
+      "I"
+    ]
+  },
+  {
+    "id": "chord_s_13",
     "name": "サビ IV - V - iii - vi",
     "section": "S",
     "keyType": "major",
@@ -468,7 +716,7 @@
     ]
   },
   {
-    "id": "chord_s_02",
+    "id": "chord_s_14",
     "name": "サビ IV - I - V - vi",
     "section": "S",
     "keyType": "major",
@@ -481,7 +729,7 @@
     ]
   },
   {
-    "id": "chord_s_03",
+    "id": "chord_s_15",
     "name": "サビ I - V - vi - IV",
     "section": "S",
     "keyType": "major",
@@ -494,7 +742,7 @@
     ]
   },
   {
-    "id": "chord_s_04",
+    "id": "chord_s_16",
     "name": "サビ vi - IV - I - V",
     "section": "S",
     "keyType": "minor",
@@ -507,7 +755,7 @@
     ]
   },
   {
-    "id": "chord_s_05",
+    "id": "chord_s_17",
     "name": "サビ I - IV - V - I",
     "section": "S",
     "keyType": "major",
@@ -520,7 +768,7 @@
     ]
   },
   {
-    "id": "chord_s_06",
+    "id": "chord_s_18",
     "name": "サビ IV - V - vi - I",
     "section": "S",
     "keyType": "major",
@@ -533,7 +781,7 @@
     ]
   },
   {
-    "id": "chord_s_07",
+    "id": "chord_s_19",
     "name": "サビ I - V - IV - V",
     "section": "S",
     "keyType": "major",
@@ -546,7 +794,7 @@
     ]
   },
   {
-    "id": "chord_s_08",
+    "id": "chord_s_20",
     "name": "サビ vi - V - IV - I",
     "section": "S",
     "keyType": "minor",
@@ -559,163 +807,67 @@
     ]
   },
   {
-    "id": "chord_s_09",
-    "name": "サビ IV - V - I - vi",
-    "section": "S",
-    "keyType": "major",
-    "bars": 4,
-    "progression": [
-      "IV",
-      "V",
-      "I",
-      "vi"
-    ]
-  },
-  {
-    "id": "chord_s_10",
-    "name": "サビ I - vi - IV - V",
-    "section": "S",
-    "keyType": "major",
-    "bars": 4,
-    "progression": [
-      "I",
-      "vi",
-      "IV",
-      "V"
-    ]
-  },
-  {
-    "id": "chord_s_11",
-    "name": "サビ IV - V - iii - vi",
-    "section": "S",
-    "keyType": "major",
-    "bars": 4,
-    "progression": [
-      "IV",
-      "V",
-      "iii",
-      "vi"
-    ]
-  },
-  {
-    "id": "chord_s_12",
-    "name": "サビ V - vi - IV - I",
-    "section": "S",
-    "keyType": "major",
-    "bars": 4,
-    "progression": [
-      "V",
-      "vi",
-      "IV",
-      "I"
-    ]
-  },
-  {
-    "id": "chord_s_13",
-    "name": "サビ I - IV - vi - V",
-    "section": "S",
-    "keyType": "major",
-    "bars": 4,
-    "progression": [
-      "I",
-      "IV",
-      "vi",
-      "V"
-    ]
-  },
-  {
-    "id": "chord_s_14",
-    "name": "サビ IV - I - V - V",
-    "section": "S",
-    "keyType": "major",
-    "bars": 4,
-    "progression": [
-      "IV",
-      "I",
-      "V",
-      "V"
-    ]
-  },
-  {
-    "id": "chord_s_15",
-    "name": "サビ vi - IV - V - I",
-    "section": "S",
+    "id": "chord_c_01",
+    "name": "Cメロ vi - V - IV",
+    "section": "C",
     "keyType": "minor",
-    "bars": 4,
+    "bars": 3,
     "progression": [
       "vi",
-      "IV",
       "V",
-      "I"
-    ]
-  },
-  {
-    "id": "chord_s_16",
-    "name": "サビ I - V - vi - V",
-    "section": "S",
-    "keyType": "major",
-    "bars": 4,
-    "progression": [
-      "I",
-      "V",
-      "vi",
-      "V"
-    ]
-  },
-  {
-    "id": "chord_s_17",
-    "name": "サビ IV - V - I - I",
-    "section": "S",
-    "keyType": "major",
-    "bars": 4,
-    "progression": [
-      "IV",
-      "V",
-      "I",
-      "I"
-    ]
-  },
-  {
-    "id": "chord_s_18",
-    "name": "サビ ii - V - I - IV",
-    "section": "S",
-    "keyType": "minor",
-    "bars": 4,
-    "progression": [
-      "ii",
-      "V",
-      "I",
       "IV"
     ]
   },
   {
-    "id": "chord_s_19",
-    "name": "サビ IV - vi - V - I",
-    "section": "S",
+    "id": "chord_c_02",
+    "name": "Cメロ IV - iii - ii",
+    "section": "C",
     "keyType": "major",
-    "bars": 4,
+    "bars": 3,
     "progression": [
       "IV",
-      "vi",
+      "iii",
+      "ii"
+    ]
+  },
+  {
+    "id": "chord_c_03",
+    "name": "Cメロ bVII - IV - I",
+    "section": "C",
+    "keyType": "major",
+    "bars": 3,
+    "progression": [
+      "bVII",
+      "IV",
+      "I"
+    ]
+  },
+  {
+    "id": "chord_c_04",
+    "name": "Cメロ ii - V - I",
+    "section": "C",
+    "keyType": "minor",
+    "bars": 3,
+    "progression": [
+      "ii",
       "V",
       "I"
     ]
   },
   {
-    "id": "chord_s_20",
-    "name": "サビ I - IV - V - vi",
-    "section": "S",
+    "id": "chord_c_05",
+    "name": "Cメロ IV - V - vi",
+    "section": "C",
     "keyType": "major",
-    "bars": 4,
+    "bars": 3,
     "progression": [
-      "I",
       "IV",
       "V",
       "vi"
     ]
   },
   {
-    "id": "chord_c_01",
+    "id": "chord_c_06",
     "name": "Cメロ vi - V - IV - III",
     "section": "C",
     "keyType": "minor",
@@ -728,7 +880,7 @@
     ]
   },
   {
-    "id": "chord_c_02",
+    "id": "chord_c_07",
     "name": "Cメロ IV - iii - ii - I",
     "section": "C",
     "keyType": "major",
@@ -741,7 +893,7 @@
     ]
   },
   {
-    "id": "chord_c_03",
+    "id": "chord_c_08",
     "name": "Cメロ bVII - IV - I - I",
     "section": "C",
     "keyType": "major",
@@ -754,7 +906,7 @@
     ]
   },
   {
-    "id": "chord_c_04",
+    "id": "chord_c_09",
     "name": "Cメロ vi - iii - IV - V",
     "section": "C",
     "keyType": "minor",
@@ -767,7 +919,7 @@
     ]
   },
   {
-    "id": "chord_c_05",
+    "id": "chord_c_10",
     "name": "Cメロ ii - V - iii - vi",
     "section": "C",
     "keyType": "minor",
@@ -777,71 +929,6 @@
       "V",
       "iii",
       "vi"
-    ]
-  },
-  {
-    "id": "chord_c_06",
-    "name": "Cメロ IV - V - vi - vii°",
-    "section": "C",
-    "keyType": "major",
-    "bars": 4,
-    "progression": [
-      "IV",
-      "V",
-      "vi",
-      "vii°"
-    ]
-  },
-  {
-    "id": "chord_c_07",
-    "name": "Cメロ I - bVII - IV - I",
-    "section": "C",
-    "keyType": "major",
-    "bars": 4,
-    "progression": [
-      "I",
-      "bVII",
-      "IV",
-      "I"
-    ]
-  },
-  {
-    "id": "chord_c_08",
-    "name": "Cメロ vi - IV - V - V",
-    "section": "C",
-    "keyType": "minor",
-    "bars": 4,
-    "progression": [
-      "vi",
-      "IV",
-      "V",
-      "V"
-    ]
-  },
-  {
-    "id": "chord_c_09",
-    "name": "Cメロ iii - vi - ii - V",
-    "section": "C",
-    "keyType": "minor",
-    "bars": 4,
-    "progression": [
-      "iii",
-      "vi",
-      "ii",
-      "V"
-    ]
-  },
-  {
-    "id": "chord_c_10",
-    "name": "Cメロ IV - V - I - VI7",
-    "section": "C",
-    "keyType": "major",
-    "bars": 4,
-    "progression": [
-      "IV",
-      "V",
-      "I",
-      "VI7"
     ]
   }
 ]
