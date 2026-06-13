@@ -1,9 +1,5 @@
-import { CompositionTavern } from "@/components/CompositionTavern";
+import { ChordStudio } from "@/components/ChordStudio";
 
 export default function Home() {
-  return (
-    <main className="flex flex-1 flex-col">
-      <CompositionTavern />
-    </main>
-  );
+  return <ChordStudio />;
 }

@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "作曲酒場（仮）",
+  title: "CHORD STUDIO",
   description:
-    "ランダムに配布されるコード進行カードを組み合わせて楽曲を作るボードゲーム風作曲アプリ。",
+    "コード進行を組んで・アレンジして・バンド即興セッションにも使える、ポップな作曲サポートアプリ。",
 };
 
 export default function RootLayout({

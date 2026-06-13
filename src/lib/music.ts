@@ -220,6 +220,22 @@ export function transposeKey(keyName: string, semitones: number): string {
 
 export const AVAILABLE_KEYS = ["C", "D", "E", "F", "G", "A", "B"] as const;
 
+/** 12キー(ジャムの転調用) */
+export const CHROMATIC_KEYS = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+] as const;
+
 /** "C4" などの音名を MIDI ノート番号(C4=60)に変換する */
 export function noteNameToMidi(name: string): number {
   const m = name.match(/^([A-G]#?)(-?\d+)$/);
@@ -227,6 +243,72 @@ export function noteNameToMidi(name: string): number {
   const pc = NOTE_NAMES.indexOf(m[1] as (typeof NOTE_NAMES)[number]);
   const octave = parseInt(m[2], 10);
   return (octave + 1) * 12 + (pc < 0 ? 0 : pc);
+}
+
+// ===== コードセル(度数+種類) ヘルパ =====
+
+import type { ChordCell, Quality } from "@/types";
+
+/** 選べるコードの種類 */
+export const QUALITIES: { id: Quality; label: string }[] = [
+  { id: "", label: "メジャー" },
+  { id: "m", label: "マイナー" },
+  { id: "7", label: "7th" },
+  { id: "maj7", label: "maj7" },
+  { id: "m7", label: "m7" },
+  { id: "6", label: "6th" },
+  { id: "sus4", label: "sus4" },
+  { id: "sus2", label: "sus2" },
+  { id: "add9", label: "add9" },
+  { id: "dim", label: "dim" },
+  { id: "aug", label: "aug" },
+];
+
+/** ダイアトニックの基本の種類(1..7度) */
+export const DIATONIC_QUALITY: Quality[] = ["", "m", "m", "", "", "m", "dim"];
+
+const NUM_UPPER = ["I", "II", "III", "IV", "V", "VI", "VII"];
+const NUM_LOWER = ["i", "ii", "iii", "iv", "v", "vi", "vii"];
+const Q_SPEC: Record<Quality, { minor: boolean; sfx: string }> = {
+  "": { minor: false, sfx: "" },
+  m: { minor: true, sfx: "" },
+  "7": { minor: false, sfx: "7" },
+  maj7: { minor: false, sfx: "maj7" },
+  m7: { minor: true, sfx: "7" }, // 小文字 + 7 = m7
+  "6": { minor: false, sfx: "6" },
+  sus4: { minor: false, sfx: "sus4" },
+  sus2: { minor: false, sfx: "sus2" },
+  add9: { minor: false, sfx: "add9" },
+  dim: { minor: true, sfx: "dim" },
+  aug: { minor: false, sfx: "aug" },
+};
+
+/** コードセル -> ローマ数字表記 */
+export function cellToRoman(cell: ChordCell): string {
+  const q = Q_SPEC[cell.quality] ?? Q_SPEC[""];
+  const acc =
+    cell.accidental > 0
+      ? "#".repeat(cell.accidental)
+      : cell.accidental < 0
+        ? "b".repeat(-cell.accidental)
+        : "";
+  const idx = Math.min(6, Math.max(0, cell.degree - 1));
+  const num = (q.minor ? NUM_LOWER : NUM_UPPER)[idx];
+  return `${acc}${num}${q.sfx}`;
+}
+
+export function cellChordName(cell: ChordCell, key: string): string {
+  return romanToChordName(cellToRoman(cell), key);
+}
+
+export function cellNotes(cell: ChordCell, key: string, octave = 4): string[] {
+  return romanToNotes(cellToRoman(cell), key, octave);
+}
+
+/** キーのメジャースケール構成音(ソロの目安) */
+export function scaleNotes(key: string): string[] {
+  const keyPc = KEY_PITCH[key] ?? 0;
+  return [0, 2, 4, 5, 7, 9, 11].map((iv) => pitchClassToName(keyPc + iv));
 }
 
 /**

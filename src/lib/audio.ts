@@ -3,10 +3,10 @@
 
 import type * as ToneType from "tone";
 
-/** 再生する1ステップ(=1小節) */
-export type PlayStep = {
+/** 再生する1ステップ(1コード)。beats=長さ(拍) */
+export type SongStep = {
   notes: string[];
-  label: string;
+  beats: number;
 };
 
 export type InstrumentId =
@@ -109,13 +109,12 @@ function makeVoice(t: typeof ToneType, id: InstrumentId): Voice {
       return {
         node: sampler,
         ready,
-        playBar: (notes, time, _bar, beat) => {
-          // ダ・ダダ・ダ のストローク
-          strum(sampler, notes, time, beat * 0.9, false);
-          strum(sampler, notes, time + beat, beat * 0.5, false);
-          strum(sampler, notes, time + beat * 1.5, beat * 0.5, true);
-          strum(sampler, notes, time + beat * 2.5, beat * 0.5, true);
-          strum(sampler, notes, time + beat * 3, beat * 0.9, false);
+        playBar: (notes, time, bar, beat) => {
+          // 各拍ストローク(ダウン/アップ交互)
+          const beats = Math.max(1, Math.round(bar / beat));
+          for (let k = 0; k < beats; k++) {
+            strum(sampler, notes, time + k * beat, beat * 0.85, k % 2 === 1);
+          }
         },
       };
     }
@@ -134,10 +133,11 @@ function makeVoice(t: typeof ToneType, id: InstrumentId): Voice {
       return {
         node: sampler,
         ready,
-        playBar: (notes, time, _bar, beat) => {
-          // 8分で刻む
+        playBar: (notes, time, bar, beat) => {
+          // 8分で刻む(コードの長さ分)
           const eighth = beat / 2;
-          for (let k = 0; k < 8; k++) {
+          const n = Math.max(2, Math.round(bar / eighth));
+          for (let k = 0; k < n; k++) {
             strum(sampler, notes, time + k * eighth, eighth * 0.7, false, 0.01);
           }
         },
@@ -157,9 +157,12 @@ function makeVoice(t: typeof ToneType, id: InstrumentId): Voice {
       poly.volume.value = -12;
       return {
         node: poly,
-        playBar: (notes, time, _bar, beat) => {
-          poly.triggerAttackRelease(notes, beat * 1.4, time);
-          poly.triggerAttackRelease(notes, beat * 1.4, time + beat * 2);
+        playBar: (notes, time, bar, beat) => {
+          // 2拍ごとにコンプ
+          const beats = Math.max(1, Math.round(bar / beat));
+          for (let k = 0; k < beats; k += 2) {
+            poly.triggerAttackRelease(notes, beat * 1.4, time + k * beat);
+          }
         },
       };
     }
@@ -239,10 +242,14 @@ export type PlayHandlers = {
 export type PlayOptions = {
   drums?: boolean;
   instrument?: InstrumentId;
+  /** ループ再生(ジャム用) */
+  loop?: boolean;
+  /** 開始前のカウントイン拍数(0=なし) */
+  countIn?: number;
 };
 
-export async function playProgression(
-  steps: PlayStep[],
+export async function playSong(
+  steps: SongStep[],
   bpm: number,
   handlers: PlayHandlers = {},
   options: PlayOptions = {},
@@ -256,20 +263,32 @@ export async function playProgression(
 
   t.Transport.bpm.value = bpm;
   const beatSeconds = 60 / bpm;
-  const barSeconds = beatSeconds * 4;
+  const offset = (options.countIn ?? 0) * beatSeconds; // カウントイン
   isPlaying = true;
 
+  // コード(可変長)
+  let acc = 0;
   steps.forEach((step, i) => {
+    const at = offset + acc * beatSeconds;
+    const dur = step.beats * beatSeconds;
     t.Transport.schedule((time) => {
-      if (step.notes.length > 0) {
-        voice.playBar(step.notes, time, barSeconds, beatSeconds);
-      }
+      if (step.notes.length > 0) voice.playBar(step.notes, time, dur, beatSeconds);
       t.Draw.schedule(() => handlers.onStep?.(i), time);
-    }, i * barSeconds);
+    }, at);
+    acc += step.beats;
   });
+  const totalBeats = acc;
 
+  // カウントイン(各拍にクリック。頭はキックでアクセント)
+  for (let b = 0; b < (options.countIn ?? 0); b++) {
+    t.Transport.schedule((time) => {
+      hihat!.triggerAttackRelease("16n", time);
+      if (b === 0) kick!.triggerAttackRelease("C1", "8n", time);
+    }, b * beatSeconds);
+  }
+
+  // ドラム(キック=1,3拍 / スネア=2,4拍 / ハイハット=8分)
   if (options.drums !== false) {
-    const totalBeats = steps.length * 4;
     for (let beat = 0; beat < totalBeats; beat++) {
       const inBar = beat % 4;
       t.Transport.schedule((time) => {
@@ -277,16 +296,23 @@ export async function playProgression(
         if (inBar === 1 || inBar === 3) snare!.triggerAttackRelease("16n", time);
         hihat!.triggerAttackRelease("32n", time);
         hihat!.triggerAttackRelease("32n", time + beatSeconds / 2);
-      }, beat * beatSeconds);
+      }, offset + beat * beatSeconds);
     }
   }
 
-  t.Transport.schedule((time) => {
-    t.Draw.schedule(() => {
-      isPlaying = false;
-      handlers.onEnd?.();
-    }, time);
-  }, steps.length * barSeconds);
+  if (options.loop) {
+    t.Transport.loop = true;
+    t.Transport.loopStart = offset;
+    t.Transport.loopEnd = offset + totalBeats * beatSeconds;
+  } else {
+    t.Transport.loop = false;
+    t.Transport.schedule((time) => {
+      t.Draw.schedule(() => {
+        isPlaying = false;
+        handlers.onEnd?.();
+      }, time);
+    }, offset + totalBeats * beatSeconds);
+  }
 
   t.Transport.start();
 }
@@ -295,6 +321,7 @@ export function stopProgression(): void {
   if (!Tone) return;
   Tone.Transport.stop();
   Tone.Transport.cancel(0);
+  Tone.Transport.loop = false;
   Object.values(voices).forEach((v) => v?.node.releaseAll?.());
   isPlaying = false;
 }
@@ -303,37 +330,12 @@ export function getIsPlaying(): boolean {
   return isPlaying;
 }
 
-/** ジャンル(と店長ジャンルカード)から楽器を決める */
-export function pickInstrument(
-  genre: string,
-  special?: { id: string; type: string },
-): { id: InstrumentId; label: string } {
-  if (special && special.type === "genre") {
-    switch (special.id) {
-      case "sp_ballad":
-        return { id: "aguitar", label: "弾き語り(アコギ)" };
-      case "sp_citypop":
-        return { id: "epiano", label: "エレピ" };
-      case "sp_anison":
-        return { id: "synthbright", label: "ブライトシンセ" };
-      case "sp_jpop90s":
-        return { id: "piano", label: "ピアノ" };
-    }
-  }
-  switch (genre) {
-    case "ロック":
-      return { id: "eguitar", label: "エレキギター" };
-    case "シティポップ":
-    case "ジャズ":
-      return { id: "epiano", label: "エレピ" };
-    case "EDM":
-      return { id: "synth", label: "シンセ" };
-    case "ボカロ":
-    case "アニソン":
-      return { id: "synthbright", label: "ブライトシンセ" };
-    case "J-POP":
-      return { id: "piano", label: "ピアノ" };
-    default:
-      return { id: "piano", label: "ピアノ" };
-  }
-}
+/** 選べる楽器 */
+export const INSTRUMENTS: { id: InstrumentId; label: string; emoji: string }[] = [
+  { id: "piano", label: "ピアノ", emoji: "🎹" },
+  { id: "aguitar", label: "アコギ", emoji: "🎸" },
+  { id: "eguitar", label: "エレキ", emoji: "🎸" },
+  { id: "epiano", label: "エレピ", emoji: "🎶" },
+  { id: "synth", label: "シンセ", emoji: "🎛️" },
+  { id: "synthbright", label: "ブライト", emoji: "✨" },
+];
