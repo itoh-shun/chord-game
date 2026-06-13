@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+:root {
+  /* 酒場(木製テーブル)風カラーパレット */
+  --background: #1c130c;
+  --foreground: #f3e9d8;
+  --wood-dark: #2a1b10;
+  --wood: #3a2516;
+  --wood-light: #5a3a22;
+  --brass: #d9a441;
+  --brass-bright: #f2c879;
+  --card: #f4ecd8;
+  --card-ink: #2a1b10;
+  --accent: #c0563b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-wood-dark: var(--wood-dark);
+  --color-wood: var(--wood);
+  --color-wood-light: var(--wood-light);
+  --color-brass: var(--brass);
+  --color-brass-bright: var(--brass-bright);
+  --color-card: var(--card);
+  --color-card-ink: var(--card-ink);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(217, 164, 65, 0.08), transparent 60%),
+    repeating-linear-gradient(
+      90deg,
+      var(--wood-dark) 0px,
+      var(--wood-dark) 38px,
+      var(--wood) 38px,
+      var(--wood) 40px
+    ),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), "Hiragino Kaku Gothic ProN", "Yu Gothic",
+    Meiryo, sans-serif;
+}
+
+/* 配置中スロットの点滅ハイライト */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(242, 200, 121, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(242, 200, 121, 0);
+  }
+}
+.playing-glow {
+  animation: pulse-glow 0.6s ease-out infinite;
+}

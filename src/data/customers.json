@@ -1,0 +1,14 @@
+[
+  { "id": "cust_vtuber", "title": "新人VTuberのデビュー曲", "description": "登録者ゼロから始める期待の新人。掴みの良い1曲がほしい。" },
+  { "id": "cust_idol_final", "title": "アイドルアニメ最終回", "description": "涙の卒業ライブ。最高に盛り上がるエンディングを。" },
+  { "id": "cust_rpg_boss", "title": "RPGラスボス戦", "description": "世界の命運を懸けた決戦。緊張感と壮大さを両立させたい。" },
+  { "id": "cust_summer_fes", "title": "夏フェスのオープニング", "description": "数万人が待つ大舞台。一気に熱狂させる開幕曲を。" },
+  { "id": "cust_radio_ed", "title": "深夜ラジオのエンディング", "description": "リスナーをやさしく見送る、余韻の残る締めの曲を。" },
+  { "id": "cust_school_live", "title": "学園祭ライブ", "description": "青春の1ページ。みんなで盛り上がれる定番ソングを。" },
+  { "id": "cust_drama_theme", "title": "恋愛ドラマ主題歌", "description": "毎週泣ける王道ラブストーリーの主題歌を。" },
+  { "id": "cust_city_pop_80s", "title": "80年代風シティポップ", "description": "夜の都会を走り抜けるような、おしゃれな1曲を。" },
+  { "id": "cust_game_ed", "title": "ゲームエンディング", "description": "長い冒険の果て。プレイヤーを温かく送り出すスタッフロール曲を。" },
+  { "id": "cust_anime_op", "title": "覇権アニメのオープニング", "description": "毎クール話題をさらう、疾走感あふれるOPを。" },
+  { "id": "cust_wedding", "title": "結婚式の入場曲", "description": "一生に一度の晴れ舞台。幸福感に満ちた1曲を。" },
+  { "id": "cust_cm_15s", "title": "15秒CMソング", "description": "短く強烈に残るキャッチーなフレーズがほしい。" }
+]

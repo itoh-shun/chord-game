@@ -1,0 +1,20 @@
+[
+  { "id": "sp_add2bars", "title": "サビ前に2小節追加", "description": "サビの直前に2小節の「タメ」を作れ。期待感を煽るんだ。", "type": "structure" },
+  { "id": "sp_cut4bars", "title": "4小節削除", "description": "どこか4小節をバッサリ切れ。冗長な部分はいらない。", "type": "structure" },
+  { "id": "sp_add_c", "title": "Cメロ追加", "description": "新しいCメロ(大サビ前の展開)を1つ足せ。", "type": "structure" },
+  { "id": "sp_add_chorus", "title": "サビ追加", "description": "サビをもう1回繰り返せ。耳に残してやろう。", "type": "structure" },
+
+  { "id": "sp_7th", "title": "7th必須", "description": "全コードに7thを足せ。少し大人びた響きにしろ。", "type": "constraint" },
+  { "id": "sp_sus4", "title": "sus4必須", "description": "どこかにsus4を入れろ。浮遊感を出すんだ。", "type": "constraint" },
+  { "id": "sp_borrowed", "title": "借用和音必須", "description": "同主調などからの借用和音を1つ入れろ。", "type": "constraint" },
+  { "id": "sp_onchord", "title": "オンコード必須", "description": "分数コード(オンコード)を最低1つ使え。ベースラインで魅せろ。", "type": "constraint" },
+
+  { "id": "sp_half_up", "title": "半音上転調", "description": "ラストサビで半音上げろ。鳥肌モノの盛り上げだ。", "type": "modulation" },
+  { "id": "sp_whole_up", "title": "全音上転調", "description": "全音上に転調しろ。一気に景色を変えるんだ。", "type": "modulation" },
+  { "id": "sp_relative", "title": "平行調転調", "description": "平行調へ転調しろ。表情をガラッと変えてみせろ。", "type": "modulation" },
+
+  { "id": "sp_anison", "title": "アニソン化", "description": "全力でアニソンっぽくしろ。疾走感と転調を恐れるな。", "type": "genre" },
+  { "id": "sp_citypop", "title": "シティポップ化", "description": "都会的でおしゃれに。テンションコード多めでいけ。", "type": "genre" },
+  { "id": "sp_jpop90s", "title": "90年代J-POP化", "description": "壮大な90年代J-POPの王道感を出せ。", "type": "genre" },
+  { "id": "sp_ballad", "title": "バラード化", "description": "テンポを落として泣けるバラードにしろ。", "type": "genre" }
+]
