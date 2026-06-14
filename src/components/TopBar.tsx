@@ -9,7 +9,7 @@ const MODE_LABEL: Record<Mode, string> = {
   combine: "つなぐ",
   play: "あそぶ",
   compose: "作曲",
-  jam: "ジャム",
+  jam: "セッション",
 };
 
 export function TopBar() {

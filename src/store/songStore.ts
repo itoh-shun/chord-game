@@ -16,6 +16,8 @@ import {
   playSong,
   stopProgression,
   prepareInstrument,
+  hitCrash,
+  setBpm,
   INSTRUMENTS,
   type InstrumentId,
 } from "@/lib/audio";
@@ -66,6 +68,11 @@ export function instrumentUnlocked(id: InstrumentId, unlocked: InstrumentId[]): 
 }
 export { INSTRUMENTS };
 
+/** タップテンポの打点履歴 */
+const tapTimes: number[] = [];
+/** 再生の世代トークン(再入で古い再生を破棄) */
+let playSeq = 0;
+
 type State = {
   song: Song;
   mode: Mode;
@@ -101,6 +108,22 @@ type State = {
   setInstrument: (i: InstrumentId) => void;
   toggleDrums: () => void;
   toggleCountIn: () => void;
+
+  // ===== セッション(ライブ) =====
+  /** グルーヴ強度 0/1/2 */
+  groove: number;
+  /** ループするセクションid。null=曲全体 */
+  jamSection: string | null;
+  /** 小節内の拍(0..3)、再生中のパルス用 */
+  beat: number;
+  /** 現在コードの残り拍 */
+  chordBeatsLeft: number;
+  /** 盛り上げフラッシュのトリガ(増えるたびに演出) */
+  flash: number;
+  setGroove: (g: number) => void;
+  jumpSection: (sectionId: string | null) => void;
+  tapTempo: () => void;
+  hype: () => void;
 
   addSection: () => void;
   removeSection: (sectionId: string) => void;
@@ -154,6 +177,12 @@ export const useSongStore = create<State>((set, get) => ({
   audioLoading: false,
   current: -1,
   editing: null,
+
+  groove: 1,
+  jamSection: null,
+  beat: -1,
+  chordBeatsLeft: 0,
+  flash: 0,
 
   brief: null,
   result: null,
@@ -226,8 +255,11 @@ export const useSongStore = create<State>((set, get) => ({
   setKey: (k) => set((s) => ({ song: { ...s.song, key: k } })),
   transposeBy: (semi) =>
     set((s) => ({ song: { ...s.song, key: transposeKey(s.song.key, semi) } })),
-  setTempo: (t) =>
-    set((s) => ({ song: { ...s.song, tempo: Math.max(40, Math.min(220, t)) } })),
+  setTempo: (t) => {
+    const tempo = Math.max(40, Math.min(220, Math.round(t)));
+    set((s) => ({ song: { ...s.song, tempo } }));
+    if (get().isPlaying) setBpm(tempo); // 生でテンポ反映
+  },
   setInstrument: (instrument) => {
     if (get().unlocked.includes(instrument)) set({ instrument });
   },
@@ -367,26 +399,38 @@ export const useSongStore = create<State>((set, get) => ({
     })),
 
   play: async () => {
-    const { song, instrument, drums, countIn, mode } = get();
-    const events = songToEvents(song);
+    const { song, instrument, drums, countIn, mode, groove, jamSection } = get();
+    // セッションでセクション指定があればその展開だけループ
+    const useSong =
+      jamSection && (mode === "jam")
+        ? { ...song, sections: song.sections.filter((s) => s.id === jamSection) }
+        : song;
+    const events = songToEvents(useSong);
     if (!events.length) return;
+    const mySeq = ++playSeq;
     set({ audioLoading: true });
     try {
       await prepareInstrument(instrument);
     } finally {
       set({ audioLoading: false });
     }
-    set({ isPlaying: true, current: -1 });
+    // 後から呼ばれた再生が優先(再入を破棄)
+    if (mySeq !== playSeq) return;
+    set({ isPlaying: true, current: -1, beat: -1 });
     await playSong(
       events.map((e) => ({ notes: e.notes, beats: e.beats })),
       song.tempo,
       {
-        onStep: (i) => set({ current: i }),
-        onEnd: () => set({ isPlaying: false, current: -1 }),
+        onStep: (i) =>
+          set({ current: i, chordBeatsLeft: events[i]?.beats ?? 0 }),
+        onBeat: (_g, inBar) =>
+          set((s) => ({ beat: inBar, chordBeatsLeft: Math.max(0, s.chordBeatsLeft - 1) })),
+        onEnd: () => set({ isPlaying: false, current: -1, beat: -1 }),
       },
       {
         drums,
         instrument,
+        groove,
         loop: mode === "jam",
         countIn: mode === "jam" && countIn ? 4 : 0,
       },
@@ -394,7 +438,37 @@ export const useSongStore = create<State>((set, get) => ({
   },
   stop: () => {
     stopProgression();
-    set({ isPlaying: false, current: -1 });
+    set({ isPlaying: false, current: -1, beat: -1 });
+  },
+
+  setGroove: (groove) => {
+    set({ groove });
+    if (get().isPlaying) get().play();
+  },
+  jumpSection: (sectionId) => {
+    const cur = get().jamSection;
+    set({ jamSection: cur === sectionId ? null : sectionId });
+    if (get().isPlaying) get().play();
+  },
+  tapTempo: () => {
+    const now = performance.now();
+    tapTimes.push(now);
+    while (tapTimes.length > 5) tapTimes.shift();
+    if (tapTimes.length >= 2) {
+      const diffs = [];
+      for (let i = 1; i < tapTimes.length; i++) diffs.push(tapTimes[i] - tapTimes[i - 1]);
+      const avg = diffs.reduce((a, b) => a + b, 0) / diffs.length;
+      if (avg > 200 && avg < 2000) {
+        const bpm = Math.round(60000 / avg);
+        get().setTempo(bpm);
+      }
+    }
+  },
+  hype: () => {
+    set((s) => ({ flash: s.flash + 1, groove: 2 }));
+    hitCrash();
+    get().transposeBy(2);
+    if (get().isPlaying) get().play();
   },
   exportMidi: () => downloadMidi(get().song),
   newSong: () => {

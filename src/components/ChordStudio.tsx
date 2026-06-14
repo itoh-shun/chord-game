@@ -6,7 +6,7 @@ import { TopBar } from "@/components/TopBar";
 import { PlayBar } from "@/components/PlayBar";
 import { ComposeView } from "@/components/ComposeView";
 import { CombineView } from "@/components/CombineView";
-import { JamView } from "@/components/JamView";
+import { SessionView } from "@/components/SessionView";
 import { ChordEditor } from "@/components/ChordEditor";
 import { ChallengeBar } from "@/components/ChallengeBar";
 import { ResultOverlay } from "@/components/ResultOverlay";
@@ -26,7 +26,7 @@ export function ChordStudio() {
       <main className="flex-1 space-y-3 px-3 pb-4 pt-2">
         {mode === "combine" && <CombineView />}
         {mode === "play" && <ChallengeBar />}
-        {mode === "jam" && <JamView />}
+        {mode === "jam" && <SessionView />}
         {(mode === "play" || mode === "compose") && <ComposeView />}
       </main>
       <PlayBar />

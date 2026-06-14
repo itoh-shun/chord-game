@@ -40,6 +40,7 @@ let Tone: typeof ToneType | null = null;
 let kick: ToneType.MembraneSynth | null = null;
 let snare: ToneType.NoiseSynth | null = null;
 let hihat: ToneType.NoiseSynth | null = null;
+let crash: ToneType.NoiseSynth | null = null;
 const voices: Partial<Record<InstrumentId, Voice>> = {};
 let isPlaying = false;
 
@@ -219,7 +220,22 @@ async function ensureTone() {
     hihat.connect(hpf);
     hihat.volume.value = -20;
   }
+  if (!crash) {
+    const hpf = new Tone.Filter(4000, "highpass").toDestination();
+    crash = new Tone.NoiseSynth({
+      noise: { type: "white" },
+      envelope: { attack: 0.001, decay: 1.2, sustain: 0 },
+    });
+    crash.connect(hpf);
+    crash.volume.value = -10;
+  }
   return Tone;
+}
+
+/** クラッシュシンバルを即時に鳴らす(盛り上げ用) */
+export async function hitCrash(): Promise<void> {
+  const t = await ensureTone();
+  crash!.triggerAttackRelease("2n", t.now());
 }
 
 function getVoice(t: typeof ToneType, id: InstrumentId): Voice {
@@ -237,6 +253,8 @@ export async function prepareInstrument(id: InstrumentId): Promise<void> {
 export type PlayHandlers = {
   onStep?: (index: number) => void;
   onEnd?: () => void;
+  /** 拍ごと。globalBeat=通算拍, beatInBar=小節内0..3 */
+  onBeat?: (globalBeat: number, beatInBar: number) => void;
 };
 
 export type PlayOptions = {
@@ -246,7 +264,37 @@ export type PlayOptions = {
   loop?: boolean;
   /** 開始前のカウントイン拍数(0=なし) */
   countIn?: number;
+  /** グルーヴ強度 0=静か 1=普通 2=熱い */
+  groove?: number;
 };
+
+type DrumHit = { pos: number; fn: (time: number) => void };
+
+/** グルーヴ別ドラムの「1拍ぶんの打点リスト」(pos=拍内の位置0..1)。
+ * 各打点を個別に Transport へ載せることでテンポ変更に追従し、
+ * モノフォニックなドラム音源でも時刻が逆行しない。 */
+function drumHits(groove: number, inBar: number): DrumHit[] {
+  const K: DrumHit["fn"] = (time) => kick!.triggerAttackRelease("C1", "8n", time);
+  const S: DrumHit["fn"] = (time) => snare!.triggerAttackRelease("16n", time);
+  const H: DrumHit["fn"] = (time) => hihat!.triggerAttackRelease("32n", time);
+  const Hq: DrumHit["fn"] = (time) => hihat!.triggerAttackRelease("64n", time);
+  const hits: DrumHit[] = [];
+  if (groove === 0) {
+    if (inBar === 0) hits.push({ pos: 0, fn: K });
+    hits.push({ pos: 0, fn: H });
+    return hits;
+  }
+  if (inBar === 0 || inBar === 2) hits.push({ pos: 0, fn: K });
+  if (inBar === 1 || inBar === 3) hits.push({ pos: 0, fn: S });
+  if (groove >= 2) {
+    for (let s = 0; s < 4; s++) hits.push({ pos: s * 0.25, fn: Hq });
+    if (inBar === 2) hits.push({ pos: 0.5, fn: K });
+  } else {
+    hits.push({ pos: 0, fn: H });
+    hits.push({ pos: 0.5, fn: H });
+  }
+  return hits;
+}
 
 export async function playSong(
   steps: SongStep[],
@@ -262,48 +310,51 @@ export async function playSong(
   if (voice.ready) await voice.ready;
 
   t.Transport.bpm.value = bpm;
-  const beatSeconds = 60 / bpm;
-  const offset = (options.countIn ?? 0) * beatSeconds; // カウントイン
+  const beatSeconds = 60 / bpm; // コードの長さ算出用(おおよそ)
+  const PPQ = t.Transport.PPQ;
+  const ci = options.countIn ?? 0;
+  // 拍位置(カウントイン込み) -> Transport の tick 時刻(テンポ追従)
+  const tk = (beatPos: number) => `${Math.round((ci + beatPos) * PPQ)}i`;
   isPlaying = true;
 
   // コード(可変長)
   let acc = 0;
   steps.forEach((step, i) => {
-    const at = offset + acc * beatSeconds;
     const dur = step.beats * beatSeconds;
     t.Transport.schedule((time) => {
       if (step.notes.length > 0) voice.playBar(step.notes, time, dur, beatSeconds);
       t.Draw.schedule(() => handlers.onStep?.(i), time);
-    }, at);
+    }, tk(acc));
     acc += step.beats;
   });
   const totalBeats = acc;
 
-  // カウントイン(各拍にクリック。頭はキックでアクセント)
-  for (let b = 0; b < (options.countIn ?? 0); b++) {
+  // カウントイン
+  for (let b = 0; b < ci; b++) {
     t.Transport.schedule((time) => {
       hihat!.triggerAttackRelease("16n", time);
       if (b === 0) kick!.triggerAttackRelease("C1", "8n", time);
-    }, b * beatSeconds);
+    }, `${Math.round(b * PPQ)}i`);
   }
 
-  // ドラム(キック=1,3拍 / スネア=2,4拍 / ハイハット=8分)
-  if (options.drums !== false) {
-    for (let beat = 0; beat < totalBeats; beat++) {
-      const inBar = beat % 4;
-      t.Transport.schedule((time) => {
-        if (inBar === 0 || inBar === 2) kick!.triggerAttackRelease("C1", "8n", time);
-        if (inBar === 1 || inBar === 3) snare!.triggerAttackRelease("16n", time);
-        hihat!.triggerAttackRelease("32n", time);
-        hihat!.triggerAttackRelease("32n", time + beatSeconds / 2);
-      }, offset + beat * beatSeconds);
+  // 拍コールバック ＋ ドラム(各打点を個別スケジュール=テンポ追従)
+  const groove = options.groove ?? 1;
+  for (let beat = 0; beat < totalBeats; beat++) {
+    const inBar = beat % 4;
+    t.Transport.schedule((time) => {
+      t.Draw.schedule(() => handlers.onBeat?.(beat, inBar), time);
+    }, tk(beat));
+    if (options.drums !== false) {
+      for (const h of drumHits(groove, inBar)) {
+        t.Transport.schedule((time) => h.fn(time), tk(beat + h.pos));
+      }
     }
   }
 
   if (options.loop) {
     t.Transport.loop = true;
-    t.Transport.loopStart = offset;
-    t.Transport.loopEnd = offset + totalBeats * beatSeconds;
+    t.Transport.loopStart = `${Math.round(ci * PPQ)}i`;
+    t.Transport.loopEnd = `${Math.round((ci + totalBeats) * PPQ)}i`;
   } else {
     t.Transport.loop = false;
     t.Transport.schedule((time) => {
@@ -311,7 +362,7 @@ export async function playSong(
         isPlaying = false;
         handlers.onEnd?.();
       }, time);
-    }, offset + totalBeats * beatSeconds);
+    }, tk(totalBeats));
   }
 
   t.Transport.start();
@@ -321,13 +372,21 @@ export function stopProgression(): void {
   if (!Tone) return;
   Tone.Transport.stop();
   Tone.Transport.cancel(0);
+  Tone.Transport.position = 0;
   Tone.Transport.loop = false;
+  // 描画タイムラインもクリア(再開時に過去時刻を入れて例外になるのを防ぐ)
+  Tone.Draw.cancel(0);
   Object.values(voices).forEach((v) => v?.node.releaseAll?.());
   isPlaying = false;
 }
 
 export function getIsPlaying(): boolean {
   return isPlaying;
+}
+
+/** 再生中にテンポを生で変更する */
+export function setBpm(bpm: number): void {
+  if (Tone) Tone.Transport.bpm.value = bpm;
 }
 
 /** 選べる楽器 */
