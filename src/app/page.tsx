@@ -1,5 +1,5 @@
-import { ChordStudio } from "@/components/ChordStudio";
+import { Bloom } from "@/components/Bloom";
 
 export default function Home() {
-  return <ChordStudio />;
+  return <Bloom />;
 }

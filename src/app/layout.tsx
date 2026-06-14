@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CHORD STUDIO",
+  title: "BLOOM ✦ 触れて咲く音",
   description:
-    "コード進行を組んで・アレンジして・バンド即興セッションにも使える、ポップな作曲サポートアプリ。",
+    "画面のどこを触っても光の粒が咲き、心地よい音が生成的にループする、音×光のインタラクティブ・プレイグラウンド。",
 };
 
 export default function RootLayout({
@@ -28,7 +28,7 @@ export default function RootLayout({
       lang="ja"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body>{children}</body>
     </html>
   );
 }
